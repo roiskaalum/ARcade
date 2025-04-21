@@ -1,0 +1,34 @@
+{
+    "name": "Action Map",
+    "maps": [
+        {
+            "name": "AR",
+            "id": "1c10339f-2823-48ce-8d53-a4cc37760004",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "d04dfc02-beed-4911-bf95-4886854768e0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "907ddbe6-e65a-48c3-8d7e-715d2ee04a54",
+                    "path": "<Touchscreen>/Press",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
