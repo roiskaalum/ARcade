@@ -1,24 +1,37 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private GameObject panelsParent;
+    //[SerializeField] private GameObject panelsParent;
+    private GameObject panelsParent;
     private GameObject[] panels;
 
-    public static UIManager Instance { get; private set; }
+    //public static UIManager Instance { get; private set; }
 
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-        }
-        Instance = this;
-    }
+    //private void Awake()
+    //{
+    //    if (Instance != null)
+    //    {
+    //        Destroy(gameObject);
+    //    }
+    //    Instance = this;
+    //}
 
     private void Start()
     {
+        EventSystem eventSystem = FindAnyObjectByType<EventSystem>();
+        if (eventSystem == null)
+        {
+            // Instantiate a new EventSystem if it doesn't exist
+            GameObject eventSystemObject = new GameObject("EventSystem");
+            eventSystemObject.transform.SetParent(null); // Ensure it is placed at the root level
+            eventSystem = eventSystemObject.AddComponent<EventSystem>();
+            // Add the Input System UI Input Module to handle user input
+            eventSystemObject.AddComponent<InputSystemUIInputModule>();
+        }
+        panelsParent = this.gameObject;
         panels = new GameObject[panelsParent.transform.childCount];
         PopulatePanelArray();
         DisablePanels();
