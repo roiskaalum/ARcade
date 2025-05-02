@@ -20,11 +20,6 @@ public class NameAuthenticator : MonoBehaviour
             }
         }
 
-        if (confirmButton == null)
-        {
-            Debug.LogError("NameAuthenticator: Confirm Button is not assigned.");
-        }
-
         if (scoreboardManager == null)
         {
             scoreboardManager = FindFirstObjectByType<ScoreboardManager>();
