@@ -8,18 +8,25 @@ public class UIManager : MonoBehaviour
     private GameObject panelsParent;
     private GameObject[] panels;
 
+    private NameAuthenticator nameAuthenticator;
+
     [SerializeField] private ScoreboardManager scoreboardManager;
 
-    //public static UIManager Instance { get; private set; }
+    //public static UIManager Instance { get; private set; } // Singleton instance, but not necessary, but could be good for the SEP Project.
+    // // An Additional thing we can make, is to have the Awake portion just inside the getter of the Instance property.
+    // // This way, we can ensure that the initialization of the manager is only called when it's needed, but this might lead to loading issues initially.
+    // // But since the Start Method still runs, maybe it's not that big of an issue.
 
-    //private void Awake()
-    //{
+    private void Awake()
+    {
     //    if (Instance != null)
     //    {
     //        Destroy(gameObject);
     //    }
     //    Instance = this;
-    //}
+
+        nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
+    }
 
     private void Start()
     {
@@ -46,6 +53,8 @@ public class UIManager : MonoBehaviour
                 Debug.LogError("ScoreboardManager not found in the scene. Critical error.");
             }
         }
+
+        Debug.Log($"NameAuthenticator found: {nameAuthenticator != null}");
     }
 
     public void OnButtonPressed(int panelNumber)
@@ -75,12 +84,24 @@ public class UIManager : MonoBehaviour
 #region Game Methods
     public void BeginGame()
     {
-        // Game start logic
+        nameAuthenticator.ValidateName();
     }
 
     public void BeginGameAsGuest()
     {
-        // Guest start logic
+        // Logic for guest start
+        string guestName = "Guest";
+        while(guestName == "Guest" && scoreboardManager.scoreData.scores.Exists(entry => entry.playerName == guestName))
+        {
+            // Generate a random guest name
+            guestName = "Guest " + Random.Range(1000, 9999).ToString();
+        }
+        
+        Debug.Log($"Starting game as guest with name: {guestName}");
+        scoreboardManager.AddScoreEntry(guestName, -1);
+
+        // Add logic to start the game here
+        // SomeStartGameMethod(guestName);
     }
 
     public void OnApplicationQuit()

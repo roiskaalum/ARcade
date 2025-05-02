@@ -1,16 +1,24 @@
 using UnityEngine;
 using TMPro; // For TMP_InputField
-using UnityEngine.UI; // For Button
+using UnityEngine.UI;
+using System.Collections;
 
 public class NameAuthenticator : MonoBehaviour
 {
+    [Tooltip("Can be Empty")]
     [SerializeField] private TMP_InputField nameInputField; // Reference to the input field
     
+    [Tooltip("Can be Empty")]
     [SerializeField] private ScoreboardManager scoreboardManager; // Reference to the ScoreboardManager
+
+    [Tooltip("Cannot be Empty")]
+    [SerializeField] private GameObject PopupConfirmUI;
+    [Tooltip("Cannot be Empty")]
+    [SerializeField] private GameObject PopupNameEmptyUI;
 
     private void Awake()
     {
-        // Ensure the input field and confirm button are assigned
+        // Ensure the input field is assigned
         if (nameInputField == null)
         {
             nameInputField = GetComponent<TMP_InputField>();
@@ -20,6 +28,38 @@ public class NameAuthenticator : MonoBehaviour
             }
         }
 
+        // Find sibling panels dynamically based on their names
+        if (nameInputField != null)
+        {
+            Transform parentTransform = nameInputField.transform.parent; // Get the parent of the TMP_InputField
+            if (parentTransform != null)
+            {
+                foreach (Transform child in parentTransform)
+                {
+                    // Check for the naming convention
+                    if (child.name == "Panel - ConfirmPopupUI")
+                    {
+                        PopupConfirmUI = child.gameObject;
+                    }
+                    else if (child.name == "Panel - EmptyNamePopupUI")
+                    {
+                        PopupNameEmptyUI = child.gameObject;
+                    }
+                }
+
+                // Log errors if panels are not found
+                if (PopupConfirmUI == null)
+                {
+                    Debug.LogError("NameAuthenticator: PopupConfirmUI not found among siblings.");
+                }
+                if (PopupNameEmptyUI == null)
+                {
+                    Debug.LogError("NameAuthenticator: PopupNameEmptyUI not found among siblings.");
+                }
+            }
+        }
+
+        // Ensure the ScoreboardManager is assigned
         if (scoreboardManager == null)
         {
             scoreboardManager = FindFirstObjectByType<ScoreboardManager>();
@@ -29,15 +69,31 @@ public class NameAuthenticator : MonoBehaviour
             }
         }
 
+        // Set initial states for the popups
+        if (PopupConfirmUI != null) PopupConfirmUI.SetActive(false);
+        if (PopupNameEmptyUI != null) PopupNameEmptyUI.SetActive(false);
+    }
+
+    private IEnumerator DisablePopupAfterClick()
+    {
+        // Wait for the user to click anywhere on the screen
+        while(!Input.GetMouseButtonDown(0))
+        {
+            yield return null;
+        }
+
+        PopupNameEmptyUI.SetActive(false);
     }
 
     public void ValidateName()
     {
         string enteredName = nameInputField.text.Trim();
+        Debug.Log($"NameAuthenticator: Validating name: {enteredName}");
 
         if (string.IsNullOrEmpty(enteredName))
         {
-            Debug.LogWarning("NameAuthenticator: Name field is empty.");
+            PopupNameEmptyUI.SetActive(true);
+            StartCoroutine(DisablePopupAfterClick());
             return;
         }
 
@@ -49,38 +105,61 @@ public class NameAuthenticator : MonoBehaviour
             if (existingEntry.score == -1)
             {
                 // Name exists but has no score, allow the player to proceed
-                Debug.Log($"Name '{enteredName}' exists but has no score. Proceeding...");
                 StartGameWithName(enteredName);
             }
             else
             {
                 // Name exists with a score, ask for confirmation
-                Debug.Log($"Name '{enteredName}' already exists with a score of {existingEntry.score}. Asking for confirmation...");
-                AskForConfirmation(enteredName);
+                PopupConfirmUI.SetActive(true);
             }
         }
         else
         {
             // Name is new, add it to the scoreboard with a score of -1
-            Debug.Log($"Name '{enteredName}' is new. Adding to the scoreboard...");
             scoreboardManager.AddScoreEntry(enteredName, -1);
             StartGameWithName(enteredName);
         }
     }
 
-    private void AskForConfirmation(string enteredName)
+    public void OnConfirmButtonClicked()
     {
-        // Implement a UI popup or confirmation dialog here
-        // For simplicity, we'll just log the confirmation request
-        Debug.Log($"Confirmation required: Do you want to proceed with the name '{enteredName}'?");
+        // Hide the confirmation UI
+        PopupConfirmUI.SetActive(false);
 
-        // If confirmed, proceed with the game
+        // Proceed with the game
+        string enteredName = nameInputField.text.Trim();
         StartGameWithName(enteredName);
+    }
+
+    public void OnCancelButtonClicked()
+    {
+        // Hide the confirmation UI
+        PopupConfirmUI.SetActive(false);
     }
 
     private void StartGameWithName(string playerName)
     {
         Debug.Log($"Starting game with player name: {playerName}");
+        // Temporary database entry
+        scoreboardManager.AddScoreEntry(playerName, -1);
+
         // Add logic to start the game here
+        // SomeStartGameMethod(playerName);
+    }
+    public void GuestStart()
+    {
+        // Logic for guest start
+        string guestName = "Guest";
+        while(guestName == "Guest" && scoreboardManager.scoreData.scores.Exists(entry => entry.playerName == guestName))
+        {
+            // Generate a random guest name
+            guestName = "Guest " + Random.Range(1000, 9999).ToString();
+        }
+        
+        Debug.Log($"Starting game as guest with name: {guestName}");
+        scoreboardManager.AddScoreEntry(guestName, -1);
+
+        // Add logic to start the game here
+        // SomeStartGameMethod(guestName);
     }
 }
