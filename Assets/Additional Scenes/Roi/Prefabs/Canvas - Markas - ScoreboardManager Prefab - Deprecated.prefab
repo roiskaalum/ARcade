@@ -4273,7 +4273,7 @@ GameObject:
   - component: {fileID: 1937192754378872005}
   - component: {fileID: 185064472188513774}
   m_Layer: 5
-  m_Name: Canvas - Markas - ScoreboardManager Prefab
+  m_Name: Canvas - Markas - ScoreboardManager Prefab - Deprecated
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
