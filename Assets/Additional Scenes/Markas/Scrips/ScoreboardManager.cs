@@ -59,7 +59,7 @@ public class ScoreboardManager : MonoBehaviour
     public Color highlightColor = Color.yellow;
 
     // --- Private Internal State ---
-    private ScoreData scoreData = new ScoreData(); // Holds all loaded/saved score entries
+    public ScoreData scoreData = new ScoreData(); // Holds all loaded/saved score entries
     private string savePath; // Path to the JSON save file
 
     // State for tracking the last added score for highlighting and temporary row display
