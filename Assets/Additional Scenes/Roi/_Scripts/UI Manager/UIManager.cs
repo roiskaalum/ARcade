@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
     private GameObject panelsParent;
     private GameObject[] panels;
 
+    [SerializeField] private ScoreboardManager scoreboardManager;
+
     //public static UIManager Instance { get; private set; }
 
     //private void Awake()
@@ -36,6 +38,14 @@ public class UIManager : MonoBehaviour
         PopulatePanelArray();
         DisablePanels();
         panels[0].SetActive(true);
+        if(scoreboardManager == null)
+        {
+            scoreboardManager = FindFirstObjectByType<ScoreboardManager>();
+            if(scoreboardManager == null)
+            {
+                Debug.LogError("ScoreboardManager not found in the scene. Critical error.");
+            }
+        }
     }
 
     public void OnButtonPressed(int panelNumber)
