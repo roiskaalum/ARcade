@@ -9,10 +9,11 @@ public class Raycasting : MonoBehaviour
     private Vector2 lastScreenPos;
     private Vector3 velocity;
     private float velocityFactor = 0.01f;
+
     private Rigidbody rb;
     private Queue<Vector2> positionHistory = new Queue<Vector2>();
-    [SerializeField] private int maxHistory = 50;
-    [SerializeField] private float zBoost = 1.5f;
+    [SerializeField] private int maxHistory = 10;
+    [SerializeField] private float sideAngleFactor = 0.5f; // 0 = ingen vinkel, 1 = fuld vinkel
 
 
 
@@ -40,6 +41,7 @@ public class Raycasting : MonoBehaviour
                 case TouchPhase.Canceled:
                     if (selectedBall != null)
                         ReleaseBall();
+                        selectedBall = null;
                     break;
 
             }
@@ -62,6 +64,7 @@ public class Raycasting : MonoBehaviour
             else if (Input.GetMouseButtonUp(0) && selectedBall != null)
             {
                 ReleaseBall();
+                selectedBall = null;
             }
         }
     }
@@ -78,35 +81,42 @@ public class Raycasting : MonoBehaviour
             {
                 
                 selectedBall = hit.transform;
-                hitDistance = Vector3.Distance(Camera.main.transform.position, hit.point);
-                
                 rb = selectedBall.GetComponent<Rigidbody>();
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                rb.isKinematic = true;
-                
-                lastScreenPos = screenPosition;            
+                if (rb != null)
+                {
+                    hitDistance = Vector3.Distance(Camera.main.transform.position, hit.point);
+                    rb.isKinematic = true;
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    lastScreenPos = screenPosition;            
+                }
             }
         }
     }
 
     private void MoveBall(Vector2 screenPosition)
     {
-        Vector3 targetPos = Camera.main.ScreenToWorldPoint(new Vector3 (screenPosition.x, screenPosition.y, hitDistance));
-        targetPos.z = selectedBall.position.z;
+        if (selectedBall == null || rb == null)
+            return;
 
-        Vector3 newPos = Vector3.Lerp(selectedBall.position, targetPos, Time.deltaTime * moveSmoothness);
-        rb.MovePosition(newPos);
-
-        // Gemmer bevægelse som velocity
-        velocity = (screenPosition - lastScreenPos) / Time.deltaTime;
-        lastScreenPos = screenPosition;
-
-        // Tjekekr for mængden af queues i positionHistory til udregning af swipe kraft/retning
-        positionHistory.Enqueue(screenPosition);
-        if (positionHistory.Count > maxHistory)
+        else
         {
-            positionHistory.Dequeue();
+            Vector3 targetPos = Camera.main.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, hitDistance));
+            targetPos.z = selectedBall.position.z;
+
+            Vector3 newPos = Vector3.Lerp(selectedBall.position, targetPos, Time.deltaTime * moveSmoothness);
+            rb.MovePosition(newPos);
+
+            // Gemmer bevægelse som velocity
+            velocity = (screenPosition - lastScreenPos) / Time.deltaTime;
+            lastScreenPos = screenPosition;
+
+            // Tjekekr for mængden af queues i positionHistory til udregning af swipe kraft/retning
+            positionHistory.Enqueue(screenPosition);
+            if (positionHistory.Count > maxHistory)
+            {
+                positionHistory.Dequeue();
+            }
         }
 
     }
@@ -115,36 +125,51 @@ public class Raycasting : MonoBehaviour
     {
         if (positionHistory.Count >= 2)
         {
-            Vector2 releaseScreenPos = lastScreenPos; //Hvor bolden bliver sluppet
-            float swipeSpeed = velocity.magnitude; //Hvor hurtigt der blev swipet
+            Vector2 releaseScreenPos = lastScreenPos;
+
+            float screenHeight = Screen.height;
+            float screenWidth = Screen.width;
+            float releaseHeightFactor = releaseScreenPos.y / screenHeight;
+
+            float swipeSpeed = velocity.magnitude;
             Vector2 start = positionHistory.Peek();
             Vector2 end = lastScreenPos;
-            Vector2 avgVelocity = (end - start) / (Time.deltaTime * positionHistory.Count);
 
             rb.isKinematic = false;
 
-            // Konverter velocity til world space
-            Vector3 from = Camera.main.ScreenToWorldPoint(new Vector3(lastScreenPos.x, lastScreenPos.y, hitDistance));
-            Vector3 to = Camera.main.ScreenToWorldPoint(new Vector3(lastScreenPos.x + velocity.x, lastScreenPos.y + velocity.y, hitDistance));
-            Vector3 worldVelocity = (to - from).normalized;
+            // Beregn basis fremad-retning
+            Vector3 forward = Camera.main.transform.forward;
+            forward.y = 0f; // Fjern hældning i y-retningen
+            forward.Normalize();
 
-            float screenHeight = Screen.height;
-            float releaseHeightFactor = releaseScreenPos.y / screenHeight; // 0 some nederste værdi, 1 som øverst værdi
-            float yBoost = Mathf.Lerp(0.5f, 2f, releaseHeightFactor*2); //Tilpas værdier
-            float zBoost = Mathf.Clamp(swipeSpeed * 0.01f, 0f, 3f); //Justér faktor og max
+            // Beregn y-boost baseret på hvor højt bolden blev sluppet
+            float yBoost = Mathf.Lerp(0.0f, 0.8f, releaseHeightFactor * 0.5f);
 
-            worldVelocity.y *= yBoost;
-            worldVelocity.z += zBoost;
+            // Begræns sidepåvirkning
+            float sideInfluence = Mathf.Clamp((end.x - start.x) / screenWidth, -0.5f, 0.5f);
+            Vector3 sideDir = Camera.main.transform.right * sideInfluence * sideAngleFactor;
 
-            rb.AddForce(worldVelocity * swipeSpeed * velocityFactor, ForceMode.Impulse);
+            // Saml hele kast-retningen
+            Vector3 worldVelocity = forward + Vector3.up * yBoost + sideDir;
 
+            // Boost fremad i z-retning afhængig af swipe speed
+            float zBoost = Mathf.Clamp(swipeSpeed * 0.01f, 0f, 0.01f);
+            worldVelocity += forward * zBoost;
+
+            // Kast bolden
+            rb.AddForce(worldVelocity.normalized * swipeSpeed * velocityFactor, ForceMode.Impulse);
+
+            // Giv lidt spin
             Vector3 angularDirection = new Vector3(velocity.y, -velocity.x, 0).normalized;
-            float spinAmount = velocity.magnitude * 0.5f;
+            float spinAmount = velocity.magnitude * 2f;
             rb.angularVelocity = angularDirection * spinAmount;
 
-            //selectedBall = null;
+            // Ryd positionshistorik
             positionHistory.Clear();
         }
     }
+
+
+
 
 }
