@@ -2,15 +2,10 @@ using UnityEngine;
 using TMPro; // Required for TextMeshPro elements
 using UnityEngine.UI; // Required for Button, InputField, and Image components
 using System.Collections.Generic; // Required for Lists
-using System.Linq; // Required for sorting (OrderByDescending) and FindIndex
+using System.Linq; // Required for sorting (OrderByDescending) and FindIndex, FirstOrDefault
 using System.IO; // Required for reading/writing files (JSON)
 
-//-----------------------------------------------------------------------------
-// Data Structures - Define these OUTSIDE the ScoreboardManager class
-//-----------------------------------------------------------------------------
-
-// Holds data for a single score entry.
-// [System.Serializable] allows Unity's JsonUtility to save/load this.
+// Data Structures (ScoreEntry, ScoreData) remain the same
 [System.Serializable]
 public class ScoreEntry
 {
@@ -18,372 +13,295 @@ public class ScoreEntry
     public int score;
 }
 
-// Wrapper class to hold the list of scores.
-// JsonUtility works better with wrapping lists in an object.
 [System.Serializable]
 public class ScoreData
 {
-    // Initialize the list so it's never null
     public List<ScoreEntry> scores = new List<ScoreEntry>();
 }
 
-//-----------------------------------------------------------------------------
-// Main Scoreboard Manager Class
-//-----------------------------------------------------------------------------
+
 public class ScoreboardManager : MonoBehaviour
 {
     // --- UI References (Assign in Inspector) ---
     [Header("UI References")]
-    [Tooltip("The input field where the player name is entered.")]
     public TMP_InputField nameInputField;
-    [Tooltip("The button that triggers adding a test score.")]
     public Button testButton;
-    [Tooltip("The GameObject containing the 'Place', 'Name', 'Score' header texts.")]
     public GameObject tableHeader;
-    [Tooltip("Assign the 10 GameObjects representing the Top 10 rows. Ensure each has an Image component.")]
-    public List<GameObject> topScoreRowsUI = new List<GameObject>(10); // Initialize list size for Inspector clarity
-    [Tooltip("Assign the GameObject for the temporary row below the Top 10. Ensure it has an Image component.")]
+    public List<GameObject> topScoreRowsUI = new List<GameObject>(10);
     public GameObject temporaryScoreRowUI;
 
     // --- Score Data Settings ---
     [Header("Score Settings")]
-    [Tooltip("The maximum number of scores to STORE internally. Can be more than displayed.")]
     [SerializeField] private int maxScoreboardEntries = 100;
-    private const int DisplayRowCount = 10; // Fixed number of rows to display in the main list
+    private const int DisplayRowCount = 10;
 
     // --- Highlighting Settings (Assign in Inspector) ---
     [Header("Highlighting")]
-    [Tooltip("The default background color for score rows.")]
     public Color defaultRowColor = Color.white;
-    [Tooltip("The background color used to highlight the most recently added score.")]
     public Color highlightColor = Color.yellow;
 
     // --- Private Internal State ---
-    public ScoreData scoreData = new ScoreData(); // Holds all loaded/saved score entries
-    private string savePath; // Path to the JSON save file
+    // *** NOTE: Made scoreData public in the provided script, changed back to private for encapsulation ***
+    // If it needs to be public for other reasons, be careful about external modifications.
+    public ScoreData scoreData = new ScoreData();
+    private string savePath;
 
-    // State for tracking the last added score for highlighting and temporary row display
-    private ScoreEntry lastAddedEntry = null; // Data of the last added entry (used for temp row)
-    private int lastAddedRank = -1; // Rank of the last added entry (1-based, -1 = none/invalid)
+    // State for tracking the last added/updated score for highlighting and temporary row display
+    private ScoreEntry lastAddedOrUpdatedEntry = null; // Renamed for clarity
+    private int lastAddedOrUpdatedRank = -1; // Renamed for clarity
 
     // State for managing the currently highlighted row's appearance
-    private GameObject currentlyHighlightedRow = null; // Reference to the row GO being highlighted
-    private Image highlightedImageComponent = null; // Cached Image component of the highlighted row
+    private GameObject currentlyHighlightedRow = null;
+    private Image highlightedImageComponent = null;
 
-    // --- Initialization Methods ---
-
+    // --- Initialization Methods --- (Awake, Start are mostly the same)
     void Awake()
     {
-        // Determine the path for saving/loading score data
         savePath = Path.Combine(Application.persistentDataPath, "scoreboardData.json");
-
-        // --- Validate Inspector Assignments (Basic Checks) ---
-        if (topScoreRowsUI == null || topScoreRowsUI.Count != DisplayRowCount)
-        {
-            Debug.LogError($"ScoreboardManager: Please assign exactly {DisplayRowCount} GameObjects to the 'Top Score Rows UI' list in the Inspector.");
-        }
-        // Ensure list doesn't contain null entries accidentally
+        // Validations...
+        if (topScoreRowsUI == null || topScoreRowsUI.Count != DisplayRowCount) Debug.LogError($"Assign {DisplayRowCount} rows to Top Score Rows UI.");
         topScoreRowsUI.RemoveAll(item => item == null);
-        if (topScoreRowsUI.Count != DisplayRowCount)
-        {
-             Debug.LogError($"ScoreboardManager: One or more elements in 'Top Score Rows UI' are unassigned.");
-        }
-
-        if (temporaryScoreRowUI == null)
-        {
-            Debug.LogWarning("ScoreboardManager: Temporary Score Row UI is not assigned. Feature disabled.");
-        }
-
-        // Optional: Check for required Image components on rows
-        // (Add similar checks if TextMeshPro components are consistently missing)
-        foreach(var row in topScoreRowsUI) { if(row != null && row.GetComponent<Image>() == null) Debug.LogWarning($"Row '{row.name}' is missing an Image component required for highlighting."); }
-        if(temporaryScoreRowUI != null && temporaryScoreRowUI.GetComponent<Image>() == null) Debug.LogWarning($"Temporary Row '{temporaryScoreRowUI.name}' is missing an Image component required for highlighting.");
-
-
-        // Ensure all score rows start inactive (can also be set in the Editor)
-        foreach (var row in topScoreRowsUI)
-        {
-            if (row != null) row.SetActive(false);
-        }
+        if (topScoreRowsUI.Count != DisplayRowCount) Debug.LogError($"One or more Top Score Rows UI elements unassigned.");
+        if (temporaryScoreRowUI == null) Debug.LogWarning("Temporary Score Row UI not assigned.");
+        // Image component checks...
+        foreach (var row in topScoreRowsUI) { if (row != null && row.GetComponent<Image>() == null) Debug.LogWarning($"Row '{row.name}' missing Image."); }
+        if (temporaryScoreRowUI != null && temporaryScoreRowUI.GetComponent<Image>() == null) Debug.LogWarning($"Temporary Row '{temporaryScoreRowUI.name}' missing Image.");
+        // Initial activation state...
+        foreach (var row in topScoreRowsUI) { if (row != null) row.SetActive(false); }
         if (temporaryScoreRowUI != null) temporaryScoreRowUI.SetActive(false);
-
-        // Load existing scores from file
         LoadScores();
     }
 
     void Start()
     {
-        // Add listener to the test button's click event
-        if (testButton != null)
-        {
-            // Use a lambda expression or create a separate method
-            testButton.onClick.AddListener(OnTestButtonClicked);
-        }
-        else
-        {
-            Debug.LogError("ScoreboardManager: TestButton is not assigned in the Inspector!");
-        }
-
-        // Perform initial UI update after loading (no highlight on start)
-        lastAddedRank = -1; // Ensure no highlight from previous session or testing
+        if (testButton != null) testButton.onClick.AddListener(OnTestButtonClicked);
+        else Debug.LogError("TestButton not assigned!");
+        lastAddedOrUpdatedRank = -1; // Use renamed variable
         UpdateScoreboardUI();
     }
 
-    // --- Button Action Method ---
-
+    // --- Button Action Method --- (OnTestButtonClicked is the same)
     void OnTestButtonClicked()
     {
-        // Get player name from input field, use default if empty
         string playerName = nameInputField.text;
-        if (string.IsNullOrWhiteSpace(playerName))
-        {
-            playerName = "Player"; // Default name
-        }
-
-        // Generate a random score for testing
-        int randomScore = Random.Range(10, 1001); // Example range
-
-        // Add the new entry (this will handle sorting, saving, and updating UI)
+        if (string.IsNullOrWhiteSpace(playerName)) playerName = "Player";
+        int randomScore = Random.Range(10, 1001);
         AddScoreEntry(playerName, randomScore);
-
-        // Clear the input field for the next entry
         nameInputField.text = "";
     }
 
-    // --- Core Score Logic Method ---
+    // --- Core Score Logic Method (MODIFIED to include high score check) ---
 
     public void AddScoreEntry(string name, int score)
     {
-        // 1. Create the new score entry object
-        ScoreEntry newEntry = new ScoreEntry { playerName = name, score = score };
+        bool scoreChanged = false; // Flag to track if data was modified
+        ScoreEntry entryToProcess = null; // Will hold the entry that was added or updated
 
-        // 2. Add it to the internal list
-        scoreData.scores.Add(newEntry);
+        // --- Check for Existing Player ---
+        // Find the first entry matching the name (case-sensitive).
+        // Use .Equals(name, System.StringComparison.OrdinalIgnoreCase) for case-insensitive.
+        ScoreEntry existingEntry = scoreData.scores.FirstOrDefault(entry => entry.playerName == name);
 
-        // 3. Sort the entire list by score in descending order (highest first)
-        scoreData.scores = scoreData.scores.OrderByDescending(entry => entry.score).ToList();
-
-        // 4. Find the rank (1-based index) of the entry *we just added*
-        //    We use ReferenceEquals to find the exact object instance we added.
-        lastAddedRank = scoreData.scores.FindIndex(entry => System.Object.ReferenceEquals(entry, newEntry)) + 1;
-        lastAddedEntry = newEntry; // Store the data reference as well
-
-        // 5. Determine if the temporary row display is needed
-        //    If the rank is within the top 10, we clear `lastAddedEntry` because
-        //    the temporary row logic specifically checks for it being non-null.
-        //    We *keep* `lastAddedRank` as it's needed for highlighting the top 10 row.
-        if (lastAddedRank <= DisplayRowCount)
+        if (existingEntry != null)
         {
-           lastAddedEntry = null; // Not needed for *temporary row display*
+            // --- Player Found: Check Score ---
+            if (score > existingEntry.score)
+            {
+                // New score is higher, update it
+                Debug.Log($"Updating score for player '{name}' from {existingEntry.score} to {score}");
+                existingEntry.score = score;
+                entryToProcess = existingEntry; // This is the entry we care about now
+                scoreChanged = true;
+            }
+            else
+            {
+                // New score is not higher, do nothing to the data
+                Debug.Log($"New score {score} for player '{name}' is not higher than existing {existingEntry.score}. Scoreboard unchanged.");
+                lastAddedOrUpdatedRank = -1; // Ensure no highlight from this attempt
+                lastAddedOrUpdatedEntry = null;
+                UpdateScoreboardUI(); // Update UI mainly to clear any previous highlight
+                return; // Exit, no sorting/saving needed
+            }
         }
-        // else: lastAddedEntry and lastAddedRank (> 10) remain set for the temporary row
-
-        // 6. Limit the total number of *stored* scores (optional, but good practice)
-        if (scoreData.scores.Count > maxScoreboardEntries)
+        else
         {
-            scoreData.scores = scoreData.scores.GetRange(0, maxScoreboardEntries);
-            // Note: If trimming could potentially remove the entry we just added
-            // (i.e., if maxScoreboardEntries is very small), we might need to
-            // re-calculate lastAddedRank here. Assumed unlikely for typical use.
+            // --- Player Not Found: Add New Entry ---
+            Debug.Log($"Adding new player '{name}' with score {score}");
+            ScoreEntry newEntry = new ScoreEntry { playerName = name, score = score };
+            scoreData.scores.Add(newEntry);
+            entryToProcess = newEntry; // This new entry is the one we care about
+            scoreChanged = true;
         }
 
-        // 7. Save the updated scores list to the JSON file
-        SaveScores();
+        // --- Post-Processing (Only if score was added or updated) ---
+        if (scoreChanged)
+        {
+            // 1. Re-sort the scores list
+            scoreData.scores = scoreData.scores.OrderByDescending(e => e.score).ToList();
 
-        // 8. Update the visual display (which will use lastAddedRank for highlighting)
-        UpdateScoreboardUI();
+            // 2. Find the rank of the entry we processed (added or updated)
+            //    Use ReferenceEquals to be sure we find the exact object instance
+            lastAddedOrUpdatedRank = scoreData.scores.FindIndex(e => System.Object.ReferenceEquals(e, entryToProcess)) + 1;
+            lastAddedOrUpdatedEntry = entryToProcess; // Store reference for temp row/highlight logic
+
+            // 3. Handle temporary row logic (clear entry reference if in top 10)
+            if (lastAddedOrUpdatedRank <= DisplayRowCount)
+            {
+                lastAddedOrUpdatedEntry = null; // Not needed for *temp row display* if in top 10
+            }
+            // else: Entry reference and rank remain set for the temporary row
+
+            // 4. Limit total stored entries
+            if (scoreData.scores.Count > maxScoreboardEntries)
+            {
+                scoreData.scores = scoreData.scores.GetRange(0, maxScoreboardEntries);
+                // Consider re-checking rank here if maxScoreboardEntries is very small
+            }
+
+            // 5. Save changes
+            SaveScores();
+
+            // 6. Update UI display
+            UpdateScoreboardUI();
+        }
     }
 
-    // --- UI Update Method ---
+    // --- UI Update Method --- (Uses renamed variables lastAddedOrUpdated...)
 
     void UpdateScoreboardUI()
     {
-        // 1. Clear any existing highlight from the previous update
         ClearHighlight();
-
-        // 2. Show/hide the table header based on whether there are any scores
         if (tableHeader != null) tableHeader.SetActive(scoreData.scores.Count > 0);
 
-        // 3. Update the Top 10 rows
+        // Update Top 10
         for (int i = 0; i < DisplayRowCount; i++)
         {
-            // Ensure the row exists in our list (Inspector check)
             if (i >= topScoreRowsUI.Count || topScoreRowsUI[i] == null) continue;
-
             GameObject row = topScoreRowsUI[i];
-
-            // Check if there's score data for this rank (index i)
             if (i < scoreData.scores.Count)
             {
-                // Data exists: Activate row, get data, update text
                 row.SetActive(true);
                 ScoreEntry entry = scoreData.scores[i];
                 UpdateRowText(row, i + 1, entry.playerName, entry.score);
-
-                // Highlight this row if its rank matches the last added rank
-                if (lastAddedRank == (i + 1))
+                // Highlight if rank matches last added/updated
+                if (lastAddedOrUpdatedRank == (i + 1)) // Check renamed variable
                 {
                     HighlightRow(row);
                 }
             }
             else
             {
-                // No data for this rank (e.g., only 5 scores exist), hide the row
                 row.SetActive(false);
             }
         }
 
-        // 4. Update the temporary score row (below the top 10)
+        // Update Temporary Row
         if (temporaryScoreRowUI != null)
         {
-            // Show temporary row ONLY if last added entry exists AND its rank was > 10
-            if (lastAddedEntry != null && lastAddedRank > DisplayRowCount)
+            // Check renamed variables for temp row logic
+            if (lastAddedOrUpdatedEntry != null && lastAddedOrUpdatedRank > DisplayRowCount)
             {
                 temporaryScoreRowUI.SetActive(true);
-                UpdateRowText(temporaryScoreRowUI, lastAddedRank, lastAddedEntry.playerName, lastAddedEntry.score);
-
-                // If the temporary row is active, it means it's the one to highlight
+                UpdateRowText(temporaryScoreRowUI, lastAddedOrUpdatedRank, lastAddedOrUpdatedEntry.playerName, lastAddedOrUpdatedEntry.score);
                 HighlightRow(temporaryScoreRowUI);
             }
             else
             {
-                // Hide the temporary row if the last score was in top 10 or no score added yet
                 temporaryScoreRowUI.SetActive(false);
             }
         }
     }
 
-    // --- Helper Method to Update Text Elements of a Row ---
-
+    // --- Helper Method to Update Text --- (UpdateRowText is the same)
     void UpdateRowText(GameObject rowGO, int place, string name, int score)
     {
         if (rowGO == null) return;
-
-        // Find TextMeshPro components within the row GameObject's children
-        // Assumes order: Place, Name, Score. Adjust indices if structure differs.
         TextMeshProUGUI[] texts = rowGO.GetComponentsInChildren<TextMeshProUGUI>();
-
         if (texts.Length >= 3)
         {
-            texts[0].text = place.ToString();             // Rank/Place
-            texts[1].text = name;                         // Player Name
-            texts[2].text = score.ToString("D3");         // Score (formatted to 3 digits, e.g., 042)
+            texts[0].text = place.ToString();
+            texts[1].text = name;
+            texts[2].text = score.ToString("D3");
         }
-        else
-        {
-            Debug.LogWarning($"Row '{rowGO.name}' does not have enough TextMeshProUGUI children (expected 3). Found {texts.Length}.");
-        }
+        else { Debug.LogWarning($"Row '{rowGO.name}' missing Text components ({texts.Length} found)."); }
     }
 
-    // --- Highlighting Helper Methods ---
 
+    // --- Highlighting Helpers --- (HighlightRow, ClearHighlight are the same)
     void HighlightRow(GameObject rowToHighlight)
     {
         if (rowToHighlight == null) return;
-
-        // Attempt to get the Image component on the row GameObject itself
         Image img = rowToHighlight.GetComponent<Image>();
         if (img != null)
         {
-            img.color = highlightColor; // Apply highlight color
-            currentlyHighlightedRow = rowToHighlight; // Store reference to the highlighted row
-            highlightedImageComponent = img;         // Store reference to its Image component
+            img.color = highlightColor;
+            currentlyHighlightedRow = rowToHighlight;
+            highlightedImageComponent = img;
         }
-        else
-        {
-            // Log a warning if highlighting is attempted on a row without an Image
-            Debug.LogWarning($"Cannot highlight '{rowToHighlight.name}' - missing Image component.");
-        }
+        else { Debug.LogWarning($"Cannot highlight '{rowToHighlight.name}', missing Image."); }
     }
 
     void ClearHighlight()
     {
-        // If we have a cached reference to a previously highlighted row's Image...
         if (currentlyHighlightedRow != null && highlightedImageComponent != null)
         {
-            // ...reset its color back to the default.
             highlightedImageComponent.color = defaultRowColor;
         }
-
-        // Clear the tracking variables regardless, ensuring no stale references
         currentlyHighlightedRow = null;
         highlightedImageComponent = null;
     }
 
 
-    // --- Saving and Loading Methods ---
-
+    // --- Saving and Loading --- (SaveScores, LoadScores are the same, use renamed variables)
     void SaveScores()
     {
-        // Serialize the entire ScoreData object (which contains the list) to JSON
-        string json = JsonUtility.ToJson(scoreData, true); // 'true' for pretty print (readable JSON)
-
-        try
-        {
-            // Write the JSON string to the specified file path
-            File.WriteAllText(savePath, json);
-            // Debug.Log("Scoreboard saved to: " + savePath); // Optional: Uncomment for save confirmation
-        }
-        catch (System.Exception e)
-        {
-            // Log error if saving fails (e.g., permissions issue)
-            Debug.LogError($"Failed to save scoreboard to {savePath}: {e.Message}");
-        }
+        string json = JsonUtility.ToJson(scoreData, true);
+        try { File.WriteAllText(savePath, json); }
+        catch (System.Exception e) { Debug.LogError($"Failed to save scoreboard: {e.Message}"); }
     }
 
     void LoadScores()
     {
-        // Reset temporary display/highlight state before loading
-        lastAddedEntry = null;
-        lastAddedRank = -1;
-        ClearHighlight(); // Ensure no visual highlight remains from editor state
+        // Use renamed variables
+        lastAddedOrUpdatedEntry = null;
+        lastAddedOrUpdatedRank = -1;
+        ClearHighlight();
 
-        // Check if the save file actually exists
         if (File.Exists(savePath))
         {
             try
-            {
-                // Read the entire JSON file content
+            { /* ... load logic ... */
                 string json = File.ReadAllText(savePath);
-                // Deserialize the JSON back into our ScoreData object
                 scoreData = JsonUtility.FromJson<ScoreData>(json);
-
-                // Basic validation: Ensure list isn't null after loading
-                 if (scoreData == null) scoreData = new ScoreData(); // Create fresh if file was invalid
-                 if (scoreData.scores == null) scoreData.scores = new List<ScoreEntry>(); // Ensure list exists
-
-                 // Optional: Re-sort on load, in case data wasn't saved sorted or needs validation
-                 scoreData.scores = scoreData.scores.OrderByDescending(entry => entry.score).ToList();
-
-                Debug.Log("Scoreboard loaded successfully from: " + savePath);
+                if (scoreData == null) scoreData = new ScoreData();
+                if (scoreData.scores == null) scoreData.scores = new List<ScoreEntry>();
+                scoreData.scores = scoreData.scores.OrderByDescending(entry => entry.score).ToList();
+                Debug.Log("Scoreboard loaded from: " + savePath);
             }
             catch (System.Exception e)
-            {
-                // Log error if loading/parsing fails, and start with fresh data
-                Debug.LogError($"Failed to load scoreboard from {savePath}: {e.Message}. Starting fresh.");
-                scoreData = new ScoreData(); // Initialize empty score data
+            { /* ... error handling ... */
+                Debug.LogError($"Failed to load scoreboard: {e.Message}. Starting fresh.");
+                scoreData = new ScoreData();
             }
         }
         else
-        {
-            // If no save file found, start with fresh data
-            Debug.Log("No scoreboard save file found at: " + savePath + ". Starting fresh.");
-            scoreData = new ScoreData(); // Initialize empty score data
+        { /* ... file not found ... */
+            Debug.Log("No scoreboard save file found. Starting fresh.");
+            scoreData = new ScoreData();
         }
     }
 
-    // --- Optional Utility Method ---
-
-    // Adds a command to the GameObject's context menu in the Inspector
+    // --- Optional Utility --- (ClearScoreboardData uses renamed variables)
     [ContextMenu("Clear All Scoreboard Data")]
     public void ClearScoreboardData()
     {
         Debug.LogWarning("Clearing all scoreboard data...");
-        scoreData = new ScoreData(); // Create a new empty data object
-        lastAddedEntry = null;       // Reset temporary state
-        lastAddedRank = -1;
-        SaveScores();                // Save the empty data to overwrite the file
-        UpdateScoreboardUI();        // Update the display (will clear rows and highlight)
-        Debug.Log("Scoreboard data cleared and file overwritten.");
+        scoreData = new ScoreData();
+        // Use renamed variables
+        lastAddedOrUpdatedEntry = null;
+        lastAddedOrUpdatedRank = -1;
+        SaveScores();
+        UpdateScoreboardUI();
+        Debug.Log("Scoreboard data cleared.");
     }
 }
