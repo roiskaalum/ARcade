@@ -104,6 +104,22 @@ public class UIManager : MonoBehaviour
         // SomeStartGameMethod(guestName);
     }
 
+    public void PauseGame()
+    {
+        // Pause game logic
+        Time.timeScale = 0f; // Pause the game
+        // Show pause menu UI
+        OnButtonPressed(5); // Assuming index 1 is the pause menu
+    }
+
+    public void ResumeGame()
+    {
+        // Resume game logic
+        Time.timeScale = 1f; // Resume the game
+        // Hide pause menu UI
+        DisablePanels(); // Assuming index 0 is the main game UI
+    }
+
     public void OnApplicationQuit()
     {
         // Application quit logic / Menu or Image Target Reset logic.
