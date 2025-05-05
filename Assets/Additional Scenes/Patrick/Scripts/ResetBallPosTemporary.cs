@@ -20,7 +20,7 @@ public class ResetBallPosTemporary : MonoBehaviour
         if (ball !=null && rb != null)
         {
             rb.angularVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.isKinematic = true;
             ball.position = startPosition;
         }
