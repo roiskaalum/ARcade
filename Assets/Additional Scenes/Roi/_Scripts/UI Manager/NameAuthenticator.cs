@@ -16,6 +16,8 @@ public class NameAuthenticator : MonoBehaviour
     [Tooltip("Cannot be Empty")]
     [SerializeField] private GameObject PopupNameEmptyUI;
 
+    [SerializeField] private UIManager uiManager; // Reference to the UIManager
+
     private void Awake()
     {
         // Ensure the input field is assigned
@@ -72,6 +74,7 @@ public class NameAuthenticator : MonoBehaviour
         // Set initial states for the popups
         if (PopupConfirmUI != null) PopupConfirmUI.SetActive(false);
         if (PopupNameEmptyUI != null) PopupNameEmptyUI.SetActive(false);
+        if(uiManager == null) uiManager = UIManager.Instance;
     }
 
     private IEnumerator DisablePopupAfterClick()
@@ -105,7 +108,7 @@ public class NameAuthenticator : MonoBehaviour
             if (existingEntry.score == -1)
             {
                 // Name exists but has no score, allow the player to proceed
-                StartGameWithName(enteredName);
+                scoreboardManager.AddScoreEntry(enteredName, -1);
             }
             else
             {
@@ -117,7 +120,6 @@ public class NameAuthenticator : MonoBehaviour
         {
             // Name is new, add it to the scoreboard with a score of -1
             scoreboardManager.AddScoreEntry(enteredName, -1);
-            StartGameWithName(enteredName);
         }
     }
 
@@ -128,7 +130,7 @@ public class NameAuthenticator : MonoBehaviour
 
         // Proceed with the game
         string enteredName = nameInputField.text.Trim();
-        StartGameWithName(enteredName);
+        uiManager.InitializeGame(enteredName);
     }
 
     public void OnCancelButtonClicked()
@@ -137,30 +139,5 @@ public class NameAuthenticator : MonoBehaviour
         PopupConfirmUI.SetActive(false);
     }
 
-    private void StartGameWithName(string playerName)
-    {
-        Debug.Log($"Starting game with player name: {playerName}");
-        // Temporary database entry
-        scoreboardManager.AddScoreEntry(playerName, -1);
-
-        // Add logic to start the game here
-        // SomeStartGameMethod(playerName);
-
-    }
-    public void GuestStart()
-    {
-        // Logic for guest start
-        string guestName = "Guest";
-        while(guestName == "Guest" && scoreboardManager.scoreData.scores.Exists(entry => entry.playerName == guestName))
-        {
-            // Generate a random guest name
-            guestName = "Guest " + Random.Range(1000, 9999).ToString();
-        }
-        
-        Debug.Log($"Starting game as guest with name: {guestName}");
-        scoreboardManager.AddScoreEntry(guestName, -1);
-
-        // Add logic to start the game here
-        // SomeStartGameMethod(guestName);
-    }
+    
 }
