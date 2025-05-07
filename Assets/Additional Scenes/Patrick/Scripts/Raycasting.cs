@@ -15,6 +15,8 @@ public class Raycasting : MonoBehaviour
     [SerializeField] private int maxHistory = 10;
     [SerializeField] private float sideAngleFactor = 0.5f; // 0 = ingen vinkel, 1 = fuld vinkel
 
+    private PointCounter pointCounter;
+
 
 
     void Update()
