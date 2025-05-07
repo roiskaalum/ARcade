@@ -9,13 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-<<<<<<< Updated upstream
     path: Assets/Additional Scenes/Roi/Scenes/MarkasSceneCopies/Scoreboardv3.unity
     guid: 4029fdb2f94448f3885a1602290b1820
-=======
-    path: Assets/Additional Scenes/Patrick/Scenes/PatrickScene1.unity
-    guid: 125be420703631440a1e9f639645b075
->>>>>>> Stashed changes
+
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 1e050c63d38c740b6b93871107d39de3, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 8d6d2f63c62a0ba32951f22a67ef3d79, type: 2}
