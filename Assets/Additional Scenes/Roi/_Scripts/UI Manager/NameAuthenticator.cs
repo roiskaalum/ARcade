@@ -145,6 +145,7 @@ public class NameAuthenticator : MonoBehaviour
 
         // Add logic to start the game here
         // SomeStartGameMethod(playerName);
+
     }
     public void GuestStart()
     {

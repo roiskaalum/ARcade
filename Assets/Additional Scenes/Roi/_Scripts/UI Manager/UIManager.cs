@@ -12,18 +12,18 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private ScoreboardManager scoreboardManager;
 
-    //public static UIManager Instance { get; private set; } // Singleton instance, but not necessary, but could be good for the SEP Project.
+    public static UIManager Instance { get; private set; } // Singleton instance, but not necessary, but could be good for the SEP Project.
     // // An Additional thing we can make, is to have the Awake portion just inside the getter of the Instance property.
     // // This way, we can ensure that the initialization of the manager is only called when it's needed, but this might lead to loading issues initially.
     // // But since the Start Method still runs, maybe it's not that big of an issue.
 
     private void Awake()
     {
-    //    if (Instance != null)
-    //    {
-    //        Destroy(gameObject);
-    //    }
-    //    Instance = this;
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+        }
+        Instance = this;
 
         nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
     }
@@ -102,6 +102,8 @@ public class UIManager : MonoBehaviour
 
         // Add logic to start the game here
         // SomeStartGameMethod(guestName);
+
+
     }
 
     public void PauseGame()
