@@ -82,9 +82,12 @@ public class UIManager : MonoBehaviour
 
 // Consider if the below methods should go into a separate Either manager, or just button specific scripts.
 #region Game Methods
-    public void BeginGame()
+    public void BeginGame(bool isGuest)
     {
-        nameAuthenticator.ValidateName();
+        if(isGuest)
+            BeginGameAsGuest();
+        else
+            nameAuthenticator.ValidateName();
     }
 
     public void BeginGameAsGuest()
@@ -100,9 +103,12 @@ public class UIManager : MonoBehaviour
         Debug.Log($"Starting game as guest with name: {guestName}");
         scoreboardManager.AddScoreEntry(guestName, -1);
 
-        // Add logic to start the game here
-        // SomeStartGameMethod(guestName);
+    }
 
+    public void InitializeGame(string name)
+    {
+
+        // StartRound(); // MARTIN // GameManager.Instance.StartRound(); Lignende noget xD.
 
     }
 
