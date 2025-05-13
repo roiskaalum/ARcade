@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 848409ee8ba454f42a5ddff137688a27, type: 3}
+  m_Name: ReferenceImageLibrary
+  m_EditorClassIdentifier: 
+  m_GuidLow: 5198518583967950185
+  m_GuidHigh: 16020289140387070869
+  m_DataStore:
+    m_Storage: []
+  m_Images:
+  - m_SerializedGuid:
+      m_GuidLow: 5654048944887949829
+      m_GuidHigh: 11753809126498052482
+    m_SerializedTextureGuid:
+      m_GuidLow: 17421193090192855016
+      m_GuidHigh: 12686891356034855641
+    m_Size: {x: 0.3, y: 0.34859303}
+    m_SpecifySize: 0
+    m_Name: arcade-poster
+    m_Texture: {fileID: 0}

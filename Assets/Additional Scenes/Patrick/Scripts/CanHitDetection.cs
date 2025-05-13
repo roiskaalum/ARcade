@@ -13,9 +13,10 @@ public class CanHitDetection : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!hasFallen && can.position.y < -21f)
+        if (!hasFallen && can.position.y < -10f)
         {
             hasFallen = true;
+            gameObject.SetActive(false);
             pointCounter.AddCanHit();
         }
 
