@@ -475,11 +475,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cansHit: 0
-  cansLeft: 6
   ballsLeft: 2
   totalPoints: 0
   points: 0
   pointsText: {fileID: 8880508435356919363}
+  ballsText: {fileID: 0}
 --- !u!1 &3406876568354922828
 GameObject:
   m_ObjectHideFlags: 0
@@ -527,6 +527,7 @@ MonoBehaviour:
   ball: {fileID: 177711319576049503}
   rb: {fileID: 8148985614886488619}
   pointCounter: {fileID: 4905486175860170233}
+  isThrown: 0
 --- !u!1 &3577736417912180443
 GameObject:
   m_ObjectHideFlags: 0
@@ -660,7 +661,7 @@ Transform:
   m_GameObject: {fileID: 3726705696872598904}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.949559, y: 1.6128839, z: -3.8279624}
+  m_LocalPosition: {x: 0, y: 0, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
