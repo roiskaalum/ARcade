@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 
     public enum GameState
     {
+        None,
         MainMenu,
         EnterName,
         ChooseScoreOption,
@@ -24,7 +25,7 @@ public class GameManager : MonoBehaviour
         GameOver
     }
 
-    public GameState CurrentState { get; private set; }
+    public GameState CurrentState { get; private set; } = GameState.None;
 
     [SerializeField] private GameObject winAnimationObject;
     [SerializeField] private GameObject loseAnimationObject;
@@ -34,6 +35,7 @@ public class GameManager : MonoBehaviour
     private string playerName;
     private int playerScore;
     private bool continueOldScore;
+    //[SerializeField] private ResetBallPosTemporary ballResetter;
 
     private void Awake()
     {
@@ -43,8 +45,10 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        yield return new WaitUntil(() => UIManager.Instance != null);
+
         menuObjects.SetActive(true);
         gameObjects.SetActive(false);
         SetState(GameState.MainMenu);
@@ -52,114 +56,72 @@ public class GameManager : MonoBehaviour
 
     public void SetState(GameState newState)
     {
-        if (CurrentState == newState) return;
+        Debug.Log($"Forsï¿½ger at sï¿½tte GameState til: {newState}, current er: {CurrentState}");
 
         CurrentState = newState;
+
         Debug.Log($"Game state changed to: {newState}");
 
         switch (newState)
         {
             case GameState.MainMenu:
-                HandleMainMenu();
+                UIManager.Instance.HandleMainMenu(); // index 0
                 break;
-
             case GameState.EnterName:
-                HandleEnterName();
+                UIManager.Instance.HandleEnterName(); //index 1
                 break;
-
             case GameState.ChooseScoreOption:
-                HandleChooseScoreOption();
+                //UIManager.Instance.HandleChooseScoreOption(); //index er ikke defineret endnu 
                 break;
-
             case GameState.Options:
-                HandleOptions();
+                UIManager.Instance.HandleOptions(); //index 2
                 break;
-
             case GameState.Scoreboard:
-                HandleScoreboard();
+                UIManager.Instance.HandleScoreboard(); //index 3
                 break;
-
             case GameState.ARScanning:
                 HandleARScanning();
                 break;
-
             case GameState.ARPlacement:
                 HandleARPlacement();
                 break;
-
             case GameState.ARTrackingLost:
                 HandleARTrackingLost();
                 break;
-
             case GameState.WaitingForInput:
                 HandleWaitingForInput();
                 break;
-
             case GameState.Playing:
                 HandlePlaying();
                 break;
-
             case GameState.CheckingResult:
                 HandleCheckingResult();
                 break;
-
             case GameState.Animation:
                 StartCoroutine(PlayEndAnimation());
                 break;
-
             case GameState.Pause:
-                HandlePause();
+                UIManager.Instance.HandlePause(); //index 5
                 break;
-
             case GameState.SavingScore:
                 SaveScore();
                 break;
-
             case GameState.GameOver:
-                HandleGameOver();
+                UIManager.Instance.HandleGameOver(); //index 4
                 break;
         }
     }
 
-    //handlers flytter vi til UIManager eller whatever
-    #region State Handlers
-
-    private void HandleMainMenu()
-    {
-        menuObjects.SetActive(true);
-        gameObjects.SetActive(false);
-
-        UIManager.Instance.OnButtonPressed(0); //MainMenu panel
-    }
-
-    private void HandleEnterName()
-    {
-        UIManager.Instance.OnButtonPressed(1); //Enter Name panelet
-    }
-
-    private void HandleChooseScoreOption()
-    {
-        UIManager.Instance.OnButtonPressed(2); //ChooseScoreOption panel
-    }
-
-    private void HandleOptions()
-    {
-        UIManager.Instance.OnButtonPressed(3); //Options panel
-    }
-
-    private void HandleScoreboard()
-    {
-        UIManager.Instance.OnButtonPressed(4); //Scoreboard panel
-    }
+    #region Game Logic
 
     private void HandleARScanning()
     {
-        Debug.Log("ARScanning: Søger efter plane");
+        Debug.Log("ARScanning: Sï¿½ger efter plane");
     }
 
     private void HandleARPlacement()
     {
-        Debug.Log("ARPlacement: Vent på brugertryk");
+        Debug.Log("ARPlacement: Vent pï¿½ brugertryk");
     }
 
     private void HandleARTrackingLost()
@@ -169,7 +131,7 @@ public class GameManager : MonoBehaviour
 
     private void HandleWaitingForInput()
     {
-        Debug.Log("Vent på kast");
+        Debug.Log("VENTER: GameManager i state 'WaitingForInput'");
     }
 
     private void HandlePlaying()
@@ -179,13 +141,31 @@ public class GameManager : MonoBehaviour
 
     private void HandleCheckingResult()
     {
+        if (PhysicsManager.Instance == null)
+        {
+            Debug.LogError("PhysicsManager.Instance er NULL!");
+            return;
+        }
+
+        if (BallManager.Instance == null)
+        {
+            Debug.LogError("BallManager.Instance er NULL!");
+            return;
+        }
+
+
         int cansHit = PhysicsManager.Instance.CheckCansHit();
         playerScore += cansHit;
 
         if (PhysicsManager.Instance.AllCansKnocked() || BallManager.Instance.OutOfBalls())
+        {
             SetState(GameState.Animation);
+        }
         else
+        {
+            //ballResetter.ResetBall(); 
             SetState(GameState.WaitingForInput);
+        }
     }
 
     private IEnumerator PlayEndAnimation()
@@ -203,36 +183,21 @@ public class GameManager : MonoBehaviour
         SetState(GameState.SavingScore);
     }
 
-    private void HandlePause()
-    {
-        UIManager.Instance.OnButtonPressed(5);
-    }
-
-    private void HandleGameOver()
-    {
-        UIManager.Instance.OnButtonPressed(6);
-    }
-
     #endregion
 
-    //flowet: overgangene 
     #region Public Gameplay Flow
 
     public void StartGameplay(string name)
     {
+        Debug.Log($"GameManager: StartGameplay() kaldt med navn: {name}");
+
+        menuObjects?.SetActive(false);
+        gameObjects?.SetActive(true);
+
         playerName = name;
         playerScore = 0;
-        menuObjects.SetActive(false);
-        gameObjects.SetActive(true);
 
         SetState(GameState.WaitingForInput);
-    }
-
-    public void StartGuestGame()
-    {
-        string guestName = "Guest" + Random.Range(1000, 9999);
-
-        StartGameplay(guestName);
     }
 
     public void OnScoreOptionSelected(bool continuePrevious)
@@ -249,26 +214,26 @@ public class GameManager : MonoBehaviour
     public void OnBallThrown()
     {
         SetState(GameState.CheckingResult);
+
+        //i Raycasting under ReleaseBall() 
+        //kald GameManager.Instance.OnBallThrown();
     }
 
     public void SaveScore()
     {
         SaveManager.Instance.SaveScore(playerName, playerScore);
-
         SetState(GameState.GameOver);
     }
 
     public void RestartGame()
     {
         playerScore = 0;
-
         SetState(GameState.WaitingForInput);
     }
 
     public void ExitGame()
     {
-        Debug.Log("Game exiting...");
-
+        Debug.Log("Game afsluttes...");
         Application.Quit();
     }
 
@@ -276,7 +241,6 @@ public class GameManager : MonoBehaviour
     {
         menuObjects.SetActive(true);
         gameObjects.SetActive(false);
-
         SetState(GameState.MainMenu);
     }
 
@@ -285,9 +249,18 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         if (CurrentState == GameState.WaitingForInput &&
-            UnityEngine.InputSystem.Touchscreen.current?.primaryTouch.press.wasPressedThisFrame == true)
+            (Input.GetKeyDown(KeyCode.Space) ||
+             UnityEngine.InputSystem.Touchscreen.current?.primaryTouch.press.wasPressedThisFrame == true))
         {
+            Debug.Log("Input registreret - gÃ¥r videre til Playing!");
             SetState(GameState.Playing);
         }
+    }
+
+    public void OnUIReady()
+    {
+        menuObjects.SetActive(true);
+        gameObjects.SetActive(false);
+        SetState(GameState.MainMenu);
     }
 }

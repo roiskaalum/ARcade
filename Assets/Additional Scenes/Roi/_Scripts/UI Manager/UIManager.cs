@@ -1,67 +1,86 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
-    //[SerializeField] private GameObject panelsParent;
-    private GameObject panelsParent;
+    [SerializeField] private Transform panelsParent;
     private GameObject[] panels;
 
     private NameAuthenticator nameAuthenticator;
 
     [SerializeField] private ScoreboardManager scoreboardManager;
 
-    public static UIManager Instance { get; private set; } // Singleton instance, but not necessary, but could be good for the SEP Project.
-    // // An Additional thing we can make, is to have the Awake portion just inside the getter of the Instance property.
-    // // This way, we can ensure that the initialization of the manager is only called when it's needed, but this might lead to loading issues initially.
-    // // But since the Start Method still runs, maybe it's not that big of an issue.
+    public static UIManager Instance { get; private set; }
 
     private void Awake()
     {
         if (Instance != null)
         {
             Destroy(gameObject);
+            return;
         }
+
         Instance = this;
 
         nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
+
+        EventSystem eventSystem = FindAnyObjectByType<EventSystem>();
+        if (eventSystem == null)
+        {
+            GameObject eventSystemObject = new GameObject("EventSystem");
+            eventSystemObject.transform.SetParent(null);
+            eventSystem = eventSystemObject.AddComponent<EventSystem>();
+            eventSystemObject.AddComponent<InputSystemUIInputModule>();
+        }
+
+        StartCoroutine(DelayedUIReady());
+    }
+
+    private IEnumerator DelayedUIReady()
+    {
+        yield return new WaitUntil(() => GameManager.Instance != null);
+        GameManager.Instance.OnUIReady();
     }
 
     private void Start()
     {
-        EventSystem eventSystem = FindAnyObjectByType<EventSystem>();
-        if (eventSystem == null)
+        if (panelsParent == null)
         {
-            // Instantiate a new EventSystem if it doesn't exist
-            GameObject eventSystemObject = new GameObject("EventSystem");
-            eventSystemObject.transform.SetParent(null); // Ensure it is placed at the root level
-            eventSystem = eventSystemObject.AddComponent<EventSystem>();
-            // Add the Input System UI Input Module to handle user input
-            eventSystemObject.AddComponent<InputSystemUIInputModule>();
+            Debug.LogError("panelsParent er ikke sat!");
+            return;
         }
-        panelsParent = this.gameObject;
-        panels = new GameObject[panelsParent.transform.childCount];
+
+        panels = new GameObject[panelsParent.childCount];
         PopulatePanelArray();
         DisablePanels();
-        panels[0].SetActive(true);
-        if(scoreboardManager == null)
+
+        if (panels.Length > 0)
+        {
+            panels[0].SetActive(true);
+            Debug.Log($"Aktiverer panel: {panels[0].name}");
+        }
+        else
+        {
+            Debug.LogError("Ingen paneler fundet i panelsParent");
+        }
+
+        if (scoreboardManager == null)
         {
             scoreboardManager = FindFirstObjectByType<ScoreboardManager>();
-            if(scoreboardManager == null)
+            if (scoreboardManager == null)
             {
                 Debug.LogError("ScoreboardManager not found in the scene. Critical error.");
             }
         }
 
         Debug.Log($"NameAuthenticator found: {nameAuthenticator != null}");
-    }
 
-    public void OnButtonPressed(int panelNumber)
-    {
-        DisablePanels();
-        panels[panelNumber].SetActive(true);
-        EventSystem.current.SetSelectedGameObject(null);
+        if (EventSystem.current == null)
+        {
+            Debug.LogWarning("EventSystem mangler stadig i scenen efter Start() – dette kan påvirke UI-navigation.");
+        }
     }
 
     private void PopulatePanelArray()
@@ -76,15 +95,52 @@ public class UIManager : MonoBehaviour
     {
         foreach (var panel in panels)
         {
-            panel.SetActive(false);
+            if (panel != null)
+            {
+                panel.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning("Et panel var NULL i DisablePanels – muligvis slettet i Hierarchy?");
+            }
         }
     }
 
-// Consider if the below methods should go into a separate Either manager, or just button specific scripts.
-#region Game Methods
+    public void OnButtonPressed(int panelIndex)
+    {
+        DisablePanels();
+
+        if (panelIndex >= 0 && panelIndex < panels.Length)
+        {
+            panels[panelIndex].SetActive(true);
+        }
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+        else
+        {
+            Debug.LogWarning("EventSystem.current er null – kunne ikke nulstille selected GameObject.");
+        }
+    }
+
+
+    public void HandleMainMenu() => OnButtonPressed(0);
+    public void HandleEnterName() => OnButtonPressed(1);
+    public void HandleOptions() => OnButtonPressed(2);
+    public void HandleScoreboard() => OnButtonPressed(3);
+    public void HandleGameOver() => OnButtonPressed(4);
+    public void HandlePause() => OnButtonPressed(5);
+
+    #region Game Methods
+
     public void BeginGame(bool isGuest)
     {
-        if(isGuest)
+        //det her skal tilføjes i NameAuthenticator(if (existingEntry.score != null)): I begge if statements
+        //UIManager.Instance.InitializeGame(enteredName);
+
+        if (isGuest)
             BeginGameAsGuest();
         else
             nameAuthenticator.ValidateName();
@@ -92,24 +148,20 @@ public class UIManager : MonoBehaviour
 
     public void BeginGameAsGuest()
     {
-        // Logic for guest start
-        string guestName = "Guest";
-        while(guestName == "Guest" && scoreboardManager.scoreData.scores.Exists(entry => entry.playerName == guestName))
-        {
-            // Generate a random guest name
-            guestName = "Guest " + Random.Range(1000, 9999).ToString();
-        }
-        
-        Debug.Log($"Starting game as guest with name: {guestName}");
-        scoreboardManager.AddScoreEntry(guestName, -1);
+        string guestName = "Guest " + Random.Range(1000, 9999).ToString();
+        Debug.Log($"Starter spil som gæst: {guestName}");
 
+        GameManager.Instance.StartGameplay(guestName);
     }
 
     public void InitializeGame(string name)
     {
+        GameManager.Instance.StartGameplay(name);
+    }
 
-        // StartRound(); // MARTIN // GameManager.Instance.StartRound(); Lignende noget xD.
-
+    public void SelectScoreOption(bool continuePrevious)
+    {
+        GameManager.Instance.OnScoreOptionSelected(continuePrevious);
     }
 
     public void PauseGame()
@@ -128,10 +180,19 @@ public class UIManager : MonoBehaviour
         DisablePanels(); // Assuming index 0 is the main game UI
     }
 
-    public void OnApplicationQuit()
+    public void HandleChooseScoreOption()
     {
-        // Application quit logic / Menu or Image Target Reset logic.
+        Debug.LogWarning("HandleChooseScoreOption kaldt – men intet panel er implementreret endnu.");
     }
-#endregion Game Methods
+
+    public void QuitGame()
+    {
+        GameManager.Instance.ExitGame();
+    }
+
+    #endregion
+
+
+
 
 }
