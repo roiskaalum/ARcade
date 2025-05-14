@@ -11,6 +11,7 @@ public class PointCounter : MonoBehaviour
     public int totalPoints = 0;
     public int points = 0;
     public TextMeshProUGUI pointsText;
+    public TextMeshProUGUI ballsText;
 
     public void OnEnable()
     {
@@ -22,6 +23,8 @@ public class PointCounter : MonoBehaviour
 
     public void Update()
     {
+        
+
         points = cansHit * cansHit;
         totalPoints = points * (ballsLeft + 1);
         if (cansHit == 6 || ballsLeft == 0)
@@ -33,6 +36,10 @@ public class PointCounter : MonoBehaviour
         {
             pointsText.text = "Points: " + points;
         }
+
+        ballsText.text = ballsLeft.ToString();
+
+
     }
 
 
