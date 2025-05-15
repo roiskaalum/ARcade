@@ -142,8 +142,11 @@ public class UIManager : MonoBehaviour
 
         if (isGuest)
             BeginGameAsGuest();
-        else
-            nameAuthenticator.ValidateName();
+        var nameAuthenticationResult = nameAuthenticator.ValidateName();
+
+
+        if (nameAuthenticationResult.Item2)
+            GameManager.Instance.StartGameplay(nameAuthenticationResult.Item1);
     }
 
     public void BeginGameAsGuest()

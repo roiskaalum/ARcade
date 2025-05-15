@@ -88,7 +88,7 @@ public class NameAuthenticator : MonoBehaviour
         PopupNameEmptyUI.SetActive(false);
     }
 
-    public void ValidateName()
+    public (string, bool) ValidateName()
     {
         string enteredName = nameInputField.text.Trim();
         Debug.Log($"NameAuthenticator: Validating name: {enteredName}");
@@ -97,7 +97,7 @@ public class NameAuthenticator : MonoBehaviour
         {
             PopupNameEmptyUI.SetActive(true);
             StartCoroutine(DisablePopupAfterClick());
-            return;
+            return (null, false);
         }
 
         // Check if the name exists in the scoreboard
@@ -109,6 +109,7 @@ public class NameAuthenticator : MonoBehaviour
             {
                 // Name exists but has no score, allow the player to proceed
                 scoreboardManager.AddScoreEntry(enteredName, -1);
+                return (enteredName, true);
             }
             else
             {
@@ -120,7 +121,9 @@ public class NameAuthenticator : MonoBehaviour
         {
             // Name is new, add it to the scoreboard with a score of -1
             scoreboardManager.AddScoreEntry(enteredName, -1);
+            return (enteredName, true);
         }
+        return (null, false);
     }
 
     public void OnConfirmButtonClicked()
