@@ -548,8 +548,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.1
-  far clip plane: 20
+  near clip plane: 0.01
+  far clip plane: 50
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -898,9 +898,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 219770369}
     m_Modifications:
+    - target: {fileID: 273445406446202282, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 273445406446202282, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017767862213825613, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2367263888382801787, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
       propertyPath: m_Name
       value: GameObject - UI
+      objectReference: {fileID: 0}
+    - target: {fileID: 2552533138866081366, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190018492085855463, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3610218145971720107, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
       propertyPath: panelsParent
@@ -910,6 +930,10 @@ PrefabInstance:
       propertyPath: scoreboardManager
       value: 
       objectReference: {fileID: 280911318}
+    - target: {fileID: 3643663826663551488, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3919162169242432539, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.3036413
@@ -954,6 +978,14 @@ PrefabInstance:
       propertyPath: uiManager
       value: 
       objectReference: {fileID: 988061061}
+    - target: {fileID: 6943939005634414671, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8819536015769320149, guid: 9e4e1bbba32de0ff99f0d1baecdb8172, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

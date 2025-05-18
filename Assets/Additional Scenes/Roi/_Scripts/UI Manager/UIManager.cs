@@ -79,7 +79,7 @@ public class UIManager : MonoBehaviour
 
         if (EventSystem.current == null)
         {
-            Debug.LogWarning("EventSystem mangler stadig i scenen efter Start() – dette kan påvirke UI-navigation.");
+            Debug.LogWarning("EventSystem mangler stadig i scenen efter Start() ï¿½ dette kan pï¿½virke UI-navigation.");
         }
     }
 
@@ -101,7 +101,7 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Et panel var NULL i DisablePanels – muligvis slettet i Hierarchy?");
+                Debug.LogWarning("Et panel var NULL i DisablePanels ï¿½ muligvis slettet i Hierarchy?");
             }
         }
     }
@@ -121,7 +121,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("EventSystem.current er null – kunne ikke nulstille selected GameObject.");
+            Debug.LogWarning("EventSystem.current er null ï¿½ kunne ikke nulstille selected GameObject.");
         }
     }
 
@@ -137,7 +137,7 @@ public class UIManager : MonoBehaviour
 
     public void BeginGame(bool isGuest)
     {
-        //det her skal tilføjes i NameAuthenticator(if (existingEntry.score != null)): I begge if statements
+        //det her skal tilfï¿½jes i NameAuthenticator(if (existingEntry.score != null)): I begge if statements
         //UIManager.Instance.InitializeGame(enteredName);
 
         if (isGuest)
@@ -152,7 +152,7 @@ public class UIManager : MonoBehaviour
     public void BeginGameAsGuest()
     {
         string guestName = "Guest " + Random.Range(1000, 9999).ToString();
-        Debug.Log($"Starter spil som gæst: {guestName}");
+        Debug.Log($"Starter spil som gÃ¦st: {guestName}");
 
         GameManager.Instance.StartGameplay(guestName);
     }
@@ -171,7 +171,7 @@ public class UIManager : MonoBehaviour
     {
         // Pause game logic
         Time.timeScale = 0f; // Pause the game
-        // Show pause menu UI
+                             // Show pause menu UI
         OnButtonPressed(5); // Assuming index 1 is the pause menu
     }
 
@@ -185,7 +185,7 @@ public class UIManager : MonoBehaviour
 
     public void HandleChooseScoreOption()
     {
-        Debug.LogWarning("HandleChooseScoreOption kaldt – men intet panel er implementreret endnu.");
+        Debug.LogWarning("HandleChooseScoreOption kaldt ï¿½ men intet panel er implementreret endnu.");
     }
 
     public void QuitGame()
@@ -194,8 +194,5 @@ public class UIManager : MonoBehaviour
     }
 
     #endregion
-
-
-
 
 }
