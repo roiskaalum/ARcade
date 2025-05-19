@@ -152,6 +152,10 @@ public class UIManager : MonoBehaviour
     public void BeginGameAsGuest()
     {
         string guestName = "Guest " + Random.Range(1000, 9999).ToString();
+        while (scoreboardManager.scoreData.scores.Find(x => x.playerName == guestName) != null)
+        {
+            guestName = "Guest " + Random.Range(1000, 9999).ToString();
+        }
         Debug.Log($"Starter spil som gæst: {guestName}");
 
         GameManager.Instance.StartGameplay(guestName);
