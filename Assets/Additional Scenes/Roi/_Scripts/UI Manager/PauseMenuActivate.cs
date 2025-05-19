@@ -33,6 +33,8 @@ public class PauseMenuActivate : MonoBehaviour
         warningText.gameObject.SetActive(true);
         warningText.text = "Game Paused";
         uiManager.PauseGame();
+        var rootObject = uiManager.transform.root.gameObject;
+        rootObject.SetActive(true);
         gameObject.SetActive(false);
     }
 }
