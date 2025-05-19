@@ -116,12 +116,12 @@ public class GameManager : MonoBehaviour
 
     private void HandleARScanning()
     {
-        Debug.Log("ARScanning: S�ger efter plane");
+        Debug.Log("ARScanning: Søger efter plane");
     }
 
     private void HandleARPlacement()
     {
-        Debug.Log("ARPlacement: Vent p� brugertryk");
+        Debug.Log("ARPlacement: Vent på brugertryk");
     }
 
     private void HandleARTrackingLost()
