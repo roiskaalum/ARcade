@@ -17,29 +17,56 @@ public class PointCounter : MonoBehaviour
     {
         cansHit = 0;
         ballsLeft = 3;
-        totalPoints = 0;
+        //totalPoints = 0;
         points = 0;
     }
 
     public void Update()
     {
+        switch (cansHit)
+            {
+                case 0:
+                    points = 0;
+                    break;
+                case 1:
+                    points = 50;
+                    break;
+                case 2:
+                    points = 100;
+                    break;
+                case 3:
+                    points = 150;
+                    break;
+                case 4:
+                    points = 200;
+                    break;
+                case 5:
+                    points = 250;
+                    break;
+                case 6:
+                // Evt. udskift til switch indeni anden switch istedet for if, else if, else if opsætning
+                if (ballsLeft == 0)
+                    {
+                        points = 500;
+                    }
+
+                else if (ballsLeft == 1)
+                    {
+                        points = 750;
+                    }
+
+                else if (ballsLeft == 2)
+                    {
+                        points = 1000;
+                    }
+                break;
+            }
         
 
-        points = cansHit * cansHit;
-        totalPoints = points * (ballsLeft + 1);
-        if (cansHit == 6 || ballsLeft == 0)
-        {
-            pointsText.text = "Points: " + totalPoints;
-        }
 
-        if (ballsLeft > 0 && cansHit != 6)
-        {
-            pointsText.text = "Points: " + points;
-        }
-
+        pointsText.text = "Points: " + points.ToString();
         ballsText.text = ballsLeft.ToString();
-
-
+        
     }
 
 
