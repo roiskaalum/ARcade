@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Transform panelsParent;
     private GameObject[] panels;
 
-    private NameAuthenticator nameAuthenticator;
+    [SerializeField] private NameAuthenticator nameAuthenticator;
 
     [SerializeField] private ScoreboardManager scoreboardManager;
 
@@ -24,7 +24,12 @@ public class UIManager : MonoBehaviour
 
         Instance = this;
 
-        nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
+        if (nameAuthenticator == null)
+        {
+            nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
+        }
+
+
 
         EventSystem eventSystem = FindAnyObjectByType<EventSystem>();
         if (eventSystem == null)
@@ -141,9 +146,13 @@ public class UIManager : MonoBehaviour
         //UIManager.Instance.InitializeGame(enteredName);
 
         if (isGuest)
+        {
             BeginGameAsGuest();
+            return;
+        }
+            
         var nameAuthenticationResult = nameAuthenticator.ValidateName();
-
+        Debug.Log(nameAuthenticationResult);
 
         if (nameAuthenticationResult.Item2)
             GameManager.Instance.StartGameplay(nameAuthenticationResult.Item1);
@@ -157,6 +166,7 @@ public class UIManager : MonoBehaviour
             guestName = "Guest " + Random.Range(1000, 9999).ToString();
         }
         Debug.Log($"Starter spil som gæst: {guestName}");
+
 
         GameManager.Instance.StartGameplay(guestName);
     }

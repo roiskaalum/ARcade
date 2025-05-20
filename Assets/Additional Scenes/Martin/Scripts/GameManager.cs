@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject winAnimationObject;
     [SerializeField] private GameObject loseAnimationObject;
-    [SerializeField] private GameObject menuObjects;
+    [SerializeField] private GameObject canvas;
     [SerializeField] private GameObject gameObjects;
 
     private string playerName;
@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitUntil(() => UIManager.Instance != null);
 
-        menuObjects.SetActive(true);
+        canvas.SetActive(true);
         gameObjects.SetActive(false);
         SetState(GameState.MainMenu);
     }
@@ -191,7 +191,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"GameManager: StartGameplay() kaldt med navn: {name}");
 
-        menuObjects?.SetActive(false);
+        canvas?.SetActive(false);
         gameObjects?.SetActive(true);
 
         playerName = name;
@@ -205,7 +205,7 @@ public class GameManager : MonoBehaviour
         continueOldScore = continuePrevious;
         playerScore = continuePrevious ? SaveManager.Instance.LoadScore(playerName) : 0;
 
-        menuObjects.SetActive(false);
+        canvas.SetActive(false);
         gameObjects.SetActive(true);
 
         SetState(GameState.WaitingForInput);
@@ -239,7 +239,7 @@ public class GameManager : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
-        menuObjects.SetActive(true);
+        canvas.SetActive(true);
         gameObjects.SetActive(false);
         SetState(GameState.MainMenu);
     }
@@ -259,7 +259,7 @@ public class GameManager : MonoBehaviour
 
     public void OnUIReady()
     {
-        menuObjects.SetActive(true);
+        canvas.SetActive(true);
         gameObjects.SetActive(false);
         SetState(GameState.MainMenu);
     }
