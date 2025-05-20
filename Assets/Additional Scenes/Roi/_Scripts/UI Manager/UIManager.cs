@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance { get; private set; }
 
+    private SoundManager soundManager;
+
     private void Awake()
     {
         if (Instance != null)
@@ -26,7 +28,7 @@ public class UIManager : MonoBehaviour
 
         if (nameAuthenticator == null)
         {
-            nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
+        nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
         }
 
 
@@ -39,6 +41,7 @@ public class UIManager : MonoBehaviour
             eventSystem = eventSystemObject.AddComponent<EventSystem>();
             eventSystemObject.AddComponent<InputSystemUIInputModule>();
         }
+        soundManager = SoundManager.instance;
 
         StartCoroutine(DelayedUIReady());
     }
@@ -128,6 +131,7 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogWarning("EventSystem.current er null � kunne ikke nulstille selected GameObject.");
         }
+        soundManager.PlayAudio(AudioType.Menu_SFX_01);
     }
 
 
@@ -150,7 +154,7 @@ public class UIManager : MonoBehaviour
             BeginGameAsGuest();
             return;
         }
-            
+
         var nameAuthenticationResult = nameAuthenticator.ValidateName();
         Debug.Log(nameAuthenticationResult);
 
@@ -195,6 +199,11 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
         // Hide pause menu UI
         DisablePanels(); // Assuming index 0 is the main game UI
+    }
+
+    public void Restart()
+    {
+        ARPrefabBridge.Instance.canResetReference.ResetCans();
     }
 
     public void HandleChooseScoreOption()
