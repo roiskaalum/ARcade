@@ -280,7 +280,7 @@ RectTransform:
   m_Father: {fileID: 8953988983832879012}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -355,7 +355,7 @@ RectTransform:
   m_Father: {fileID: 4896800319595730740}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -540,7 +540,7 @@ RectTransform:
   m_Father: {fileID: 3990799041768774446}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -667,6 +667,7 @@ GameObject:
   m_Component:
   - component: {fileID: 81339271269640643}
   - component: {fileID: 836844379434005934}
+  - component: {fileID: 4559820232699832801}
   m_Layer: 0
   m_Name: Slider - SFX Volume
   m_TagString: Untagged
@@ -747,6 +748,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4559820232699832801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4390268301120408199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 430262beb7254b167b790e22426c1291, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeParameter: SFXVolume
+  mixer: {fileID: 24100000, guid: 7b83237d0f80ad006bc2d02f1c99ea81, type: 2}
+  slider: {fileID: 836844379434005934}
+  multiplier: 20
 --- !u!1 &4723241445395010182
 GameObject:
   m_ObjectHideFlags: 0
@@ -757,6 +774,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5976814435911473355}
   - component: {fileID: 18434538364979166}
+  - component: {fileID: 6233254930623879862}
   m_Layer: 0
   m_Name: Slider - Master Volume
   m_TagString: Untagged
@@ -837,6 +855,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6233254930623879862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4723241445395010182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 430262beb7254b167b790e22426c1291, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeParameter: MasterVolume
+  mixer: {fileID: 24100000, guid: 7b83237d0f80ad006bc2d02f1c99ea81, type: 2}
+  slider: {fileID: 18434538364979166}
+  multiplier: 20
 --- !u!1 &4751651352106584098
 GameObject:
   m_ObjectHideFlags: 0
@@ -908,7 +942,7 @@ RectTransform:
   m_Father: {fileID: 2578200034950845341}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1094,7 +1128,7 @@ RectTransform:
   m_Father: {fileID: 5003991665550437776}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1341,7 +1375,7 @@ RectTransform:
   m_Father: {fileID: 3512522922820090206}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1602,6 +1636,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7332509812846748603}
   - component: {fileID: 4539918210579112329}
+  - component: {fileID: 7237748395515808798}
   m_Layer: 0
   m_Name: Slider - Music Volume
   m_TagString: Untagged
@@ -1682,6 +1717,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7237748395515808798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8801446167307735818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 430262beb7254b167b790e22426c1291, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeParameter: MusicVolume
+  mixer: {fileID: 24100000, guid: 7b83237d0f80ad006bc2d02f1c99ea81, type: 2}
+  slider: {fileID: 4539918210579112329}
+  multiplier: 20
 --- !u!1 &9170202481033465571
 GameObject:
   m_ObjectHideFlags: 0

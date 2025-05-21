@@ -80,8 +80,22 @@ public class NameAuthenticator : MonoBehaviour
     private IEnumerator DisablePopupAfterClick()
     {
         // Wait for the user to click anywhere on the screen
-        while(!Input.GetMouseButtonDown(0))
+        // Wait for a pointer click or submit action using the new Input System
+        bool clicked = false;
+        while (!clicked)
         {
+            if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+            {
+            clicked = true;
+            }
+            else if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.enterKey.wasPressedThisFrame)
+            {
+            clicked = true;
+            }
+            else if (UnityEngine.InputSystem.Gamepad.current != null && UnityEngine.InputSystem.Gamepad.current.buttonSouth.wasPressedThisFrame)
+            {
+            clicked = true;
+            }
             yield return null;
         }
 

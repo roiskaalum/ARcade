@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Additional Scenes/Patrick/Scenes/PatrickScene1.unity
     guid: 125be420703631440a1e9f639645b075
   - enabled: 1
-    path: Assets/Scenes/MainScene.unity
+    path: Assets/Additional Scenes/Roi/Scenes/MainScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 1e050c63d38c740b6b93871107d39de3, type: 2}

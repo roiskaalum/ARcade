@@ -14,8 +14,6 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance { get; private set; }
 
-    private SoundManager soundManager;
-
     private void Awake()
     {
         if (Instance != null)
@@ -31,8 +29,6 @@ public class UIManager : MonoBehaviour
         nameAuthenticator = FindFirstObjectByType<NameAuthenticator>();
         }
 
-
-
         EventSystem eventSystem = FindAnyObjectByType<EventSystem>();
         if (eventSystem == null)
         {
@@ -41,7 +37,6 @@ public class UIManager : MonoBehaviour
             eventSystem = eventSystemObject.AddComponent<EventSystem>();
             eventSystemObject.AddComponent<InputSystemUIInputModule>();
         }
-        soundManager = SoundManager.instance;
 
         StartCoroutine(DelayedUIReady());
     }
@@ -116,7 +111,7 @@ public class UIManager : MonoBehaviour
 
     public void OnButtonPressed(int panelIndex)
     {
-        soundManager.PlayAudio(AudioType.Menu_SFX_01);
+        SoundManager.instance.PlayAudio(AudioType.Menu_SFX_01);
         DisablePanels();
 
         if (panelIndex >= 0 && panelIndex < panels.Length)
@@ -159,7 +154,10 @@ public class UIManager : MonoBehaviour
         Debug.Log(nameAuthenticationResult);
 
         if (nameAuthenticationResult.Item2)
-            GameManager.Instance.StartGameplay(nameAuthenticationResult.Item1);
+        {
+            GameManager gameManager = GameManager.Instance;
+            gameManager.StartGameplay(nameAuthenticationResult.Item1);
+        }
     }
 
     public void BeginGameAsGuest()
@@ -171,18 +169,22 @@ public class UIManager : MonoBehaviour
         }
         Debug.Log($"Starter spil som gæst: {guestName}");
 
-
-        GameManager.Instance.StartGameplay(guestName);
+        GameManager gameManager = GameManager.Instance;
+        Debug.Log($"GameManager: {gameManager}");
+        gameManager.StartGameplay(guestName);
     }
 
     public void InitializeGame(string name)
     {
-        GameManager.Instance.StartGameplay(name);
+        GameManager gameManager = GameManager.Instance;
+
+        gameManager.StartGameplay(name);
     }
 
     public void SelectScoreOption(bool continuePrevious)
     {
-        GameManager.Instance.OnScoreOptionSelected(continuePrevious);
+        GameManager gameManager = GameManager.Instance;
+        gameManager.OnScoreOptionSelected(continuePrevious);
     }
 
     public void PauseGame()
@@ -199,13 +201,21 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
         // Hide pause menu UI
         DisablePanels(); // Assuming index 0 is the main game UI
-        PauseManager.Instance.ResumeGame();
+        PauseManager manager = PauseManager.Instance;
+        manager.ResumeGame();
     }
 
     public void Restart()
     {
         ARPrefabBridge.Instance.canResetReference.ResetCans();
         ResumeGame();
+    }
+
+    public void MainMenuFromPause()
+    {
+        ARPrefabBridge.Instance.canResetReference.ResetCans();
+        Time.timeScale = 0f; // Resume the game
+        OnButtonPressed(0);
     }
 
     public void HandleChooseScoreOption()
@@ -215,7 +225,9 @@ public class UIManager : MonoBehaviour
 
     public void QuitGame()
     {
-        GameManager.Instance.ExitGame();
+        GameManager gameManager = GameManager.Instance;
+
+        gameManager.ExitGame();
     }
 
     #endregion
