@@ -18,7 +18,7 @@ public class Raycasting : MonoBehaviour
     private PointCounter pointCounter;
 
 
-
+    // Update bruger touch eller musen til at kalde TrySelectBall og MoveBall metoderne
     void Update()
     {
         // Input til touch
@@ -71,6 +71,7 @@ public class Raycasting : MonoBehaviour
         }
     }
 
+    // Metode som forsøger at vælge en bold.
     private void TrySelectBall(Vector2 screenPosition)
     {
         
@@ -96,6 +97,7 @@ public class Raycasting : MonoBehaviour
         }
     }
 
+    // Metode som bevæger en bold.
     private void MoveBall(Vector2 screenPosition)
     {
         if (selectedBall == null || rb == null)
@@ -123,6 +125,7 @@ public class Raycasting : MonoBehaviour
 
     }
 
+    // Metode som slipper en bold
     private void ReleaseBall()
     {
         if (positionHistory.Count >= 2)
@@ -161,7 +164,7 @@ public class Raycasting : MonoBehaviour
             // Kast bolden
             rb.AddForce(worldVelocity.normalized * swipeSpeed * velocityFactor, ForceMode.Impulse);
 
-            // Giv lidt spin
+            // Spin
             Vector3 angularDirection = new Vector3(velocity.y, -velocity.x, 0).normalized;
             float spinAmount = velocity.magnitude * 2f;
             rb.angularVelocity = angularDirection * spinAmount;
@@ -170,8 +173,4 @@ public class Raycasting : MonoBehaviour
             positionHistory.Clear();
         }
     }
-
-
-
-
 }

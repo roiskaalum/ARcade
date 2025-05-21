@@ -10,7 +10,7 @@ public class CanHitDetection : MonoBehaviour
     private bool hasFallen = false;
 
     
-    // Update is called once per frame
+    // Update tjekker om en dåse er faldet ved at tjekke efter y-positionen
     void Update()
     {
         if (!hasFallen && can.position.y < -10f)

@@ -8,7 +8,7 @@ public class ResetBallPosTemporary : MonoBehaviour
     public PointCounter pointCounter;
     public bool isThrown = false;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start sætter startpositionen til boldens position i scenen så den senere kan sættes til startpositionen
     void Start()
     {
         if (ball != null)
@@ -17,6 +17,7 @@ public class ResetBallPosTemporary : MonoBehaviour
         }
     }
 
+    // Update står for logikken der resetter boldens position
     void Update()
     {
         if (ball.transform.position.z > 2 && isThrown == false)

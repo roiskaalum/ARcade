@@ -3,9 +3,6 @@ using TMPro;
 
 public class PointCounter : MonoBehaviour
 {
-
-    
-
     public int cansHit = 0;
     public int ballsLeft = 2;
     public int totalPoints = 0;
@@ -13,6 +10,7 @@ public class PointCounter : MonoBehaviour
     public TextMeshProUGUI pointsText;
     public TextMeshProUGUI ballsText;
 
+    // Metode som kaldes ved genstart af spillet
     public void OnEnable()
     {
         cansHit = 0;
@@ -21,6 +19,7 @@ public class PointCounter : MonoBehaviour
         points = 0;
     }
 
+    // Update opdaterer point i scenen
     public void Update()
     {
         switch (cansHit)
@@ -69,13 +68,14 @@ public class PointCounter : MonoBehaviour
         
     }
 
-
+    // Metode til at sikre os at ballsLeft ikke kan ryge under 0
     public void BallsSpent()
     {
         ballsLeft--;
         ballsLeft = Mathf.Max(ballsLeft, 0);
     }
 
+    // Metode som tilføjer cans til cans hit
     public void AddCanHit()
     {
         cansHit++;
