@@ -5,47 +5,36 @@ public class PauseManager : MonoBehaviour
     public static PauseManager Instance { get; private set; }
 
     [SerializeField] private GameObject fullPauseUIRoot;
-    [SerializeField] private GameObject pauseButtonPanel;
+    [SerializeField] private GameObject pauseButtonCanvas;
+
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+        pauseButtonCanvas.SetActive(false);
     }
 
     public void ShowPauseButton()
     {
-        pauseButtonPanel.SetActive(true);
+        pauseButtonCanvas.SetActive(true);
     }
 
     public void HidePauseButton()
     {
-        pauseButtonPanel.SetActive(false);
+        pauseButtonCanvas.SetActive(false);
     }
 
-    //husk er Time.timeScale ikke påvirker AR tracking 
+    //husk er Time.timeScale ikke pÃ¥virker AR tracking 
     //ved ikke om vi har noget af relevans?= 
 
-    public void TogglePause()
-    {
-        bool isPaused = Time.timeScale == 0f;
-
-        if (isPaused)
-        {
-            ResumeGame();
-        }
-        else
-        {
-            PauseGame();
-        }
-    }
 
     public void PauseGame()
     {
@@ -54,6 +43,7 @@ public class PauseManager : MonoBehaviour
         HidePauseButton();
 
         GameManager.Instance.SetState(GameManager.GameState.Pause);
+        UIManager.Instance.HandlePause();
     }
 
     public void ResumeGame()

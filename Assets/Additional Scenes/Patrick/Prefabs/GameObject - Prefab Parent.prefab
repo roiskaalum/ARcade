@@ -405,6 +405,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cansParent: {fileID: 6807458961883991971}
   pointCounter: {fileID: 8802705475055276038}
+  ball: {fileID: 2940333038537083921}
+--- !u!1 &2940333038537083921 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1654119601760059886, guid: 54365a97026fe8545a4fe48521997bdc, type: 3}
+  m_PrefabInstance: {fileID: 4484094644987252223}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &3980414262072737178 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 650754739034402917, guid: 54365a97026fe8545a4fe48521997bdc, type: 3}

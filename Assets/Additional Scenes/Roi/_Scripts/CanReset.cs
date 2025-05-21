@@ -7,6 +7,8 @@ public class CanReset : MonoBehaviour
     [SerializeField] private Transform cansParent;  // Parent of all cans
     [SerializeField] private PointCounter pointCounter;  // Optional scoring system
 
+    [SerializeField] private GameObject ball;
+
     private List<Rigidbody> _canRigidbodies = new List<Rigidbody>();
     private List<Vector3> _originalPositions = new List<Vector3>();
     private List<Quaternion> _originalRotations = new List<Quaternion>();
@@ -35,8 +37,7 @@ public class CanReset : MonoBehaviour
                 _originalRotations.Add(child.rotation);
             }
         }
-        arPrefabBridge = ARPrefabBridge.Instance;
-        arPrefabBridge.Register(this);
+        ARPrefabBridge.Instance.Register(this);
     }
 
     public void ResetCans()
@@ -44,6 +45,8 @@ public class CanReset : MonoBehaviour
         
         pointCounter.gameObject.SetActive(false);  // Reset score if available
         pointCounter.gameObject.SetActive(true);  // Reset score if available
+
+        ball.gameObject.SetActive(false);  // Deactivate ball
 
         for (int i = 0; i < _canRigidbodies.Count; i++)
         {

@@ -199,11 +199,13 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
         // Hide pause menu UI
         DisablePanels(); // Assuming index 0 is the main game UI
+        PauseManager.Instance.ResumeGame();
     }
 
     public void Restart()
     {
         ARPrefabBridge.Instance.canResetReference.ResetCans();
+        ResumeGame();
     }
 
     public void HandleChooseScoreOption()
