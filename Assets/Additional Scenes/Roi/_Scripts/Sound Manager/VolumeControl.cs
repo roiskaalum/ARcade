@@ -29,9 +29,10 @@ public class VolumeControl : MonoBehaviour
     private void HandleSliderValueChanged(float value)
     {
         mixer.SetFloat(volumeParameter, Mathf.Log10(value) * multiplier);
-        if(value <= 0.0001f)
+        if (value <= 0.0001f)
         {
             PlayerPrefs.SetFloat(volumeParameter, -80);
+            mixer.SetFloat(volumeParameter, -80);
         }
     }
 }

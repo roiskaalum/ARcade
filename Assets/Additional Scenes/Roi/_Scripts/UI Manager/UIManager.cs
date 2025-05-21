@@ -116,6 +116,7 @@ public class UIManager : MonoBehaviour
 
     public void OnButtonPressed(int panelIndex)
     {
+        soundManager.PlayAudio(AudioType.Menu_SFX_01);
         DisablePanels();
 
         if (panelIndex >= 0 && panelIndex < panels.Length)
@@ -131,7 +132,6 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogWarning("EventSystem.current er null � kunne ikke nulstille selected GameObject.");
         }
-        soundManager.PlayAudio(AudioType.Menu_SFX_01);
     }
 
 
