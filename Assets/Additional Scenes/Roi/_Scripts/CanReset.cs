@@ -13,7 +13,7 @@ public class CanReset : MonoBehaviour
     private List<Vector3> _originalPositions = new List<Vector3>();
     private List<Quaternion> _originalRotations = new List<Quaternion>();
 
-    private ARPrefabBridge arPrefabBridge;
+    // private ARPrefabBridge arPrefabBridge;
 
     private void Awake() => RememberCans();
 
@@ -37,7 +37,7 @@ public class CanReset : MonoBehaviour
                 _originalRotations.Add(child.rotation);
             }
         }
-        ARPrefabBridge.Instance.Register(this);
+        // ARPrefabBridge.Instance.Register(this);
     }
 
     public void ResetCans()

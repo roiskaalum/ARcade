@@ -10,7 +10,7 @@ public class CanHitDetection : MonoBehaviour
     private bool hasFallen = false;
 
     
-    // Update tjekker om en dåse er faldet ved at tjekke efter y-positionen
+    // Update tjekker om en dï¿½se er faldet ved at tjekke efter y-positionen
     void Update()
     {
         if (!hasFallen && can.position.y < -10f)
@@ -19,6 +19,5 @@ public class CanHitDetection : MonoBehaviour
             gameObject.SetActive(false);
             pointCounter.AddCanHit();
         }
-
     }
 }

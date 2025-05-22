@@ -5,7 +5,7 @@ public class Raycasting : MonoBehaviour
 {
     private Transform selectedBall = null;
     private float hitDistance = 0f;
-    [SerializeField] private float moveSmoothness = 10f; //Højere = mere hastighed
+    [SerializeField] private float moveSmoothness = 10f; //Hï¿½jere = mere hastighed
     private Vector2 lastScreenPos;
     private Vector3 velocity;
     private float velocityFactor = 0.01f;
@@ -42,8 +42,10 @@ public class Raycasting : MonoBehaviour
 
                 case TouchPhase.Canceled:
                     if (selectedBall != null)
+                    {
                         ReleaseBall();
                         selectedBall = null;
+                    }
                     break;
 
             }
@@ -71,7 +73,7 @@ public class Raycasting : MonoBehaviour
         }
     }
 
-    // Metode som forsøger at vælge en bold.
+    // Metode som forsï¿½ger at vï¿½lge en bold.
     private void TrySelectBall(Vector2 screenPosition)
     {
         
@@ -97,7 +99,7 @@ public class Raycasting : MonoBehaviour
         }
     }
 
-    // Metode som bevæger en bold.
+    // Metode som bevï¿½ger en bold.
     private void MoveBall(Vector2 screenPosition)
     {
         if (selectedBall == null || rb == null)
@@ -111,11 +113,11 @@ public class Raycasting : MonoBehaviour
             Vector3 newPos = Vector3.Lerp(selectedBall.position, targetPos, Time.deltaTime * moveSmoothness);
             rb.MovePosition(newPos);
 
-            // Gemmer bevægelse som velocity
+            // Gemmer bevï¿½gelse som velocity
             velocity = (screenPosition - lastScreenPos) / Time.deltaTime;
             lastScreenPos = screenPosition;
 
-            // Tjekekr for mængden af queues i positionHistory til udregning af swipe kraft/retning
+            // Tjekekr for mï¿½ngden af queues i positionHistory til udregning af swipe kraft/retning
             positionHistory.Enqueue(screenPosition);
             if (positionHistory.Count > maxHistory)
             {
@@ -144,20 +146,20 @@ public class Raycasting : MonoBehaviour
 
             // Beregn basis fremad-retning
             Vector3 forward = Camera.main.transform.forward;
-            forward.y = 0f; // Fjern hældning i y-retningen
+            forward.y = 0f; // Fjern hï¿½ldning i y-retningen
             forward.Normalize();
 
-            // Beregn y-boost baseret på hvor højt bolden blev sluppet
+            // Beregn y-boost baseret pï¿½ hvor hï¿½jt bolden blev sluppet
             float yBoost = Mathf.Lerp(0.0f, 0.8f, releaseHeightFactor * 0.5f);
 
-            // Begræns sidepåvirkning
+            // Begrï¿½ns sidepï¿½virkning
             float sideInfluence = Mathf.Clamp((end.x - start.x) / screenWidth, -0.5f, 0.5f);
             Vector3 sideDir = Camera.main.transform.right * sideInfluence * sideAngleFactor;
 
             // Saml hele kast-retningen
             Vector3 worldVelocity = forward + Vector3.up * yBoost + sideDir;
 
-            // Boost fremad i z-retning afhængig af swipe speed
+            // Boost fremad i z-retning afhï¿½ngig af swipe speed
             float zBoost = Mathf.Clamp(swipeSpeed * 0.01f, 0f, 0.01f);
             worldVelocity += forward * zBoost;
 
