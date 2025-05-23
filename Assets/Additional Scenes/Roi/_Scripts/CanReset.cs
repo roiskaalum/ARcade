@@ -3,67 +3,50 @@ using UnityEngine;
 
 public class CanReset : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private Transform cansParent;  // Parent of all cans
-    [SerializeField] private PointCounter pointCounter;  // Optional scoring system
+    [SerializeField] private GameObject referenceObject; // Reference to the empty game object
+    private List<Transform> childTransforms = new List<Transform>();
+    private Dictionary<Transform, Vector3> initialPositions = new Dictionary<Transform, Vector3>();
+    private Dictionary<Transform, Quaternion> initialRotations = new Dictionary<Transform, Quaternion>();
 
     [SerializeField] private GameObject ball;
 
-    private List<Rigidbody> _canRigidbodies = new List<Rigidbody>();
-    private List<Vector3> _originalPositions = new List<Vector3>();
-    private List<Quaternion> _originalRotations = new List<Quaternion>();
-
-    // private ARPrefabBridge arPrefabBridge;
-
-    private void Awake() => RememberCans();
-
-
-
-    public void RememberCans()
+    private void Awake()
     {
-
-        if (!cansParent) return;
-
-        _canRigidbodies.Clear();
-        _originalPositions.Clear();
-        _originalRotations.Clear();
-
-        foreach (Transform child in cansParent)
+        // Store the initial transforms of all children
+        foreach (Transform child in referenceObject.transform)
         {
-            if (child.TryGetComponent<Rigidbody>(out var rb))
-            {
-                _canRigidbodies.Add(rb);
-                _originalPositions.Add(child.position);
-                _originalRotations.Add(child.rotation);
-            }
+            childTransforms.Add(child);
+            initialPositions[child] = child.position;
+            initialRotations[child] = child.rotation;
+            Debug.Log($"Child: {child.name}, Initial Position: {initialPositions[child]}, Initial Rotation: {initialRotations[child]}");
         }
-        // ARPrefabBridge.Instance.Register(this);
+        ARPrefabBridge.Instance.Register(this);
     }
 
-    public void ResetCans()
+    public void Reset()
     {
-        
-        pointCounter.gameObject.SetActive(false);  // Reset score if available
-        pointCounter.gameObject.SetActive(true);  // Reset score if available
-
-        ball.gameObject.SetActive(false);  // Deactivate ball
-
-        for (int i = 0; i < _canRigidbodies.Count; i++)
+        foreach (Transform child in childTransforms)
         {
-            if (!_canRigidbodies[i]) continue;
+            Rigidbody rb = child.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true; // Disable physics while resetting
+            }
+            Debug.Log(child.position + " POSITION" + " | " + child.rotation + " ROTATION");
+            // Reset position and rotation
+            child.position = initialPositions[child];
+            child.rotation = initialRotations[child];
 
-            Rigidbody rb = _canRigidbodies[i];
-
-            // Force kinematic ON for reset
-            rb.isKinematic = true;
-
-            // Apply position/rotation reset
-            rb.transform.SetPositionAndRotation(_originalPositions[i], _originalRotations[i]);
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-
-            // Always disable kinematic after
-            rb.isKinematic = false;
+            if (rb != null)
+            {
+                rb.isKinematic = false; // Re-enable physics
+            }
         }
+        ball.gameObject.SetActive(true);
+    }
+
+    private void Update()
+    {
+        Debug.Log(referenceObject.transform.position + " POS | ROT " + referenceObject.transform.rotation);
     }
 }

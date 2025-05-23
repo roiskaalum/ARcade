@@ -143,9 +143,13 @@ public class UIManager : MonoBehaviour
     {
         //det her skal tilf�jes i NameAuthenticator(if (existingEntry.score != null)): I begge if statements
         //UIManager.Instance.InitializeGame(enteredName);
-
+        if(ARPrefabBridge.Instance.canResetReference != null)
+        {
+            ARPrefabBridge.Instance.canResetReference.Reset();
+        }
         if (isGuest)
         {
+            PauseManager.Instance.ShowPauseButton();
             BeginGameAsGuest();
             return;
         }
@@ -155,6 +159,7 @@ public class UIManager : MonoBehaviour
 
         if (nameAuthenticationResult.Item2)
         {
+            PauseManager.Instance.ShowPauseButton();
             GameManager gameManager = GameManager.Instance;
             gameManager.StartGameplay(nameAuthenticationResult.Item1);
         }
@@ -201,19 +206,19 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
         // Hide pause menu UI
         DisablePanels(); // Assuming index 0 is the main game UI
-        PauseManager manager = PauseManager.Instance;
-        manager.ResumeGame();
+        PauseManager.Instance.ResumeGame();
     }
 
     public void Restart()
     {
-        ARPrefabBridge.Instance.canResetReference.ResetCans();
+        Debug.Log(ARPrefabBridge.Instance.canResetReference);
+        ARPrefabBridge.Instance.canResetReference.Reset();
         ResumeGame();
     }
 
     public void MainMenuFromPause()
     {
-        ARPrefabBridge.Instance.canResetReference.ResetCans();
+        ARPrefabBridge.Instance.canResetReference.Reset();
         Time.timeScale = 0f; // Resume the game
         OnButtonPressed(0);
     }

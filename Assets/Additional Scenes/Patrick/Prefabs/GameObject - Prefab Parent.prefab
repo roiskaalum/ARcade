@@ -198,30 +198,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f7ac914baea79384bc1dc40f1e93a6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cansParent: {fileID: 6807458961883991971}
-  pointCounter: {fileID: 8802705475055276038}
+  referenceObject: {fileID: 1444163990502599969}
   ball: {fileID: 2940333038537083921}
+--- !u!1 &1444163990502599969 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3039937638713991390, guid: 54365a97026fe8545a4fe48521997bdc, type: 3}
+  m_PrefabInstance: {fileID: 4484094644987252223}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2940333038537083921 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1654119601760059886, guid: 54365a97026fe8545a4fe48521997bdc, type: 3}
   m_PrefabInstance: {fileID: 4484094644987252223}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &6807458961883991971 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6936185033524200028, guid: 54365a97026fe8545a4fe48521997bdc, type: 3}
-  m_PrefabInstance: {fileID: 4484094644987252223}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8802705475055276038 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4905486175860170233, guid: 54365a97026fe8545a4fe48521997bdc, type: 3}
-  m_PrefabInstance: {fileID: 4484094644987252223}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f50f3cb0aa86aa40bae3ef01870fa8e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &8880199525355092549 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4973797224360425402, guid: 54365a97026fe8545a4fe48521997bdc, type: 3}
