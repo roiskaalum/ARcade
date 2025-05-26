@@ -113,7 +113,26 @@ public class NameAuthenticator : MonoBehaviour
             StartCoroutine(DisablePopupAfterClick());
             return (null, false);
         }
+        bool isValidChars = true;
+        foreach (char c in enteredName)
+        {
+            // Danish alphabet: a-z, A-Z, æ, ø, å, Æ, Ø, Å, and 0-9
+            if (!(char.IsLetterOrDigit(c) ||
+                  c == 'æ' || c == 'Æ' ||
+                  c == 'ø' || c == 'Ø' ||
+                  c == 'å' || c == 'Å'))
+            {
+                isValidChars = false;
+                break;
+            }
+        }
 
+        if (enteredName.Length > 30 || !isValidChars)
+        {
+            PopupNameEmptyUI.SetActive(true);
+            StartCoroutine(DisablePopupAfterClick());
+            return (null, false);
+        }
         // Check if the name exists in the scoreboard
         var existingEntry = scoreboardManager.scoreData.scores.Find(entry => entry.playerName == enteredName);
 
