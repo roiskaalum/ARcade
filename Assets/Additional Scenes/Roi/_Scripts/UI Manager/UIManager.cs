@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using System.Collections;
+using UnityEngine.XR.ARFoundation;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private NameAuthenticator nameAuthenticator;
 
     [SerializeField] private ScoreboardManager scoreboardManager;
+    [SerializeField] private ARTrackedImageManager trackedImageManager;
 
     public static UIManager Instance { get; private set; }
 
@@ -37,6 +39,15 @@ public class UIManager : MonoBehaviour
             eventSystem = eventSystemObject.AddComponent<EventSystem>();
             eventSystemObject.AddComponent<InputSystemUIInputModule>();
         }
+        if (trackedImageManager == null)
+        {
+            trackedImageManager = FindFirstObjectByType<ARTrackedImageManager>();
+            if (trackedImageManager == null)
+            {
+                Debug.LogError("ARTrackedImageManager not found in the scene. Critical error.");
+            }
+        }
+        trackedImageManager.enabled = false;
 
         StartCoroutine(DelayedUIReady());
     }
@@ -143,10 +154,7 @@ public class UIManager : MonoBehaviour
     {
         //det her skal tilf�jes i NameAuthenticator(if (existingEntry.score != null)): I begge if statements
         //UIManager.Instance.InitializeGame(enteredName);
-        if(ARPrefabBridge.Instance.canResetReference != null)
-        {
-            ARPrefabBridge.Instance.canResetReference.Reset();
-        }
+
         if (isGuest)
         {
             PauseManager.Instance.ShowPauseButton();
@@ -159,6 +167,7 @@ public class UIManager : MonoBehaviour
 
         if (nameAuthenticationResult.Item2)
         {
+            trackedImageManager.enabled = true;
             PauseManager.Instance.ShowPauseButton();
             GameManager gameManager = GameManager.Instance;
             gameManager.StartGameplay(nameAuthenticationResult.Item1);
@@ -176,6 +185,7 @@ public class UIManager : MonoBehaviour
 
         GameManager gameManager = GameManager.Instance;
         Debug.Log($"GameManager: {gameManager}");
+        trackedImageManager.enabled = true;
         gameManager.StartGameplay(guestName);
     }
 
@@ -211,7 +221,7 @@ public class UIManager : MonoBehaviour
 
     public void Restart()
     {
-        Debug.Log(ARPrefabBridge.Instance.canResetReference);
+        Debug.Log("Restarting game...");
         ARPrefabBridge.Instance.canResetReference.Reset();
         ResumeGame();
     }
@@ -219,6 +229,10 @@ public class UIManager : MonoBehaviour
     public void MainMenuFromPause()
     {
         ARPrefabBridge.Instance.canResetReference.Reset();
+        ARPrefabBridge.Instance.canResetReference.Disable();
+        if(trackedImageManager.enabled != false)
+            trackedImageManager.enabled = false; // Disable image tracking when returning to main menu
+        PauseManager.Instance.HidePauseButton();        
         Time.timeScale = 0f; // Resume the game
         OnButtonPressed(0);
     }
